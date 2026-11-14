@@ -1,14 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { cuesForEvent } from "../audio/cues";
 import { sfx } from "../audio/sfx";
-import type { SfxCue } from "../audio/sfx";
 import LaunchScene from "../render/LaunchScene";
 import { SimEngine } from "../sim/engine";
 import { computeStats } from "../sim/vehicle";
 import { useGame } from "../store/game";
-import type { SimEvent, SimSnapshot, TelemetrySample, Vehicle } from "../types";
+import type { SimSnapshot, TelemetrySample, Vehicle } from "../types";
 import FlightHUD from "./FlightHUD";
+import LaunchCinematic from "./LaunchCinematic";
 import LaunchFX from "./LaunchFX";
 import PadLaunch from "./PadLaunch";
 
@@ -26,21 +27,6 @@ function downsample(samples: TelemetrySample[]): TelemetrySample[] {
   return out;
 }
 
-function cueForEvent(event: SimEvent): SfxCue | null {
-  const message = event.message;
-  if (message.includes("LIFTOFF")) return "liftoff";
-  if (message.includes("STAGE SEPARATION")) return "separation";
-  if (message.includes("SES-1")) return "ignition";
-  if (message.includes("MECO") || message.includes("SECO")) return "separation";
-  if (message.includes("FAIRING JETTISON")) return "fairing";
-  if (message.includes("PAYLOAD DEPLOY")) return "deploy";
-  if (message.includes("MAX Q")) return "maxq";
-  if (message.includes("MISSION SUCCESS")) return "success";
-  if (message.includes("ABORT")) return "abort";
-  if (event.tone === "bad") return "failure";
-  return null;
-}
-
 export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
   const finish = useGame((s) => s.finish);
   const build = useGame((s) => s.build);
@@ -48,6 +34,18 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
   const engineRef = useRef<SimEngine | null>(null);
   const [snap, setSnap] = useState<SimSnapshot | null>(null);
   const [samples, setSamples] = useState<TelemetrySample[]>([]);
+  const [timeWarp, setTimeWarp] = useState<1 | 2 | 4>(2);
+  const [autoAssist, setAutoAssist] = useState(true);
+  const timeWarpRef = useRef<1 | 2 | 4>(2);
+  const autoAssistRef = useRef(true);
+
+  useEffect(() => {
+    timeWarpRef.current = timeWarp;
+  }, [timeWarp]);
+
+  useEffect(() => {
+    autoAssistRef.current = autoAssist;
+  }, [autoAssist]);
 
   useEffect(() => {
     const engine = new SimEngine(vehicle, build);
@@ -67,11 +65,29 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
       raf = requestAnimationFrame(loop);
       const elapsed = Math.min(0.25, Math.max(0, (now - last) / 1000));
       last = now;
-      accumulator += elapsed;
+      const curStatus = engine.getSnapshot().status;
+      const mult = curStatus === "flying" ? timeWarpRef.current : 1;
+      accumulator += elapsed * mult;
 
       let guard = 0;
-      while (accumulator >= FIXED_STEP && guard < 20) {
+      while (accumulator >= FIXED_STEP && guard < 80) {
         engine.step(FIXED_STEP);
+        if (autoAssistRef.current) {
+          const s = engine.getSnapshot();
+          if (s.status === "flying") {
+            if (s.q > 38 && s.throttle > 0.7) engine.setThrottle(0.7);
+            else if (s.q < 32 && s.throttle < 1) engine.setThrottle(1);
+            if (s.stage1Burnout && !s.separated && vehicle.stages === 2) {
+              engine.action("stage");
+            }
+            if (s.fairingAttached && s.h > 82_000 && vehicle.stages === 2) {
+              engine.action("fairing");
+            }
+            if (s.seco && !s.deployed && vehicle.stages === 2) {
+              engine.action("deploy");
+            }
+          }
+        }
         accumulator -= FIXED_STEP;
         guard += 1;
       }
@@ -113,8 +129,7 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
           const key = `${event.t.toFixed(2)}|${event.message}`;
           if (seenEvents.has(key)) continue;
           seenEvents.add(key);
-          const cue = cueForEvent(event);
-          if (cue) sfx.playCue(cue);
+          for (const cue of cuesForEvent(event)) sfx.playCue(cue);
         }
 
         // Warning cues ----------------------------------------------------
@@ -196,6 +211,37 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
       <LaunchScene engineRef={engineRef} vehicle={vehicle} build={build} />
       <LaunchFX snap={snap} />
       <PadLaunch snap={snap} />
+      <LaunchCinematic snap={snap} />
+      <div className="pointer-events-auto absolute bottom-3 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1.5 rounded-md border border-[var(--line)] bg-[rgba(5,11,21,0.82)] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] backdrop-blur sm:flex">
+        <button
+          type="button"
+          onClick={() => setAutoAssist((v) => !v)}
+          className={`rounded px-1.5 py-0.5 transition ${
+            autoAssist
+              ? "border border-[rgba(0,229,255,0.45)] bg-[rgba(0,229,255,0.12)] text-[var(--cyan)]"
+              : "text-[var(--muted)] hover:text-[var(--ink)]"
+          }`}
+          title="Auto-stage, fairing jettison & Max-Q throttle assist"
+        >
+          {autoAssist ? "Flight assist: auto" : "Flight assist: manual"}
+        </button>
+        <span className="text-[var(--line)]">|</span>
+        <span className="text-[var(--muted)]">Warp</span>
+        {([1, 2, 4] as const).map((w) => (
+          <button
+            key={w}
+            type="button"
+            onClick={() => setTimeWarp(w)}
+            className={`rounded px-1.5 py-0.5 transition ${
+              timeWarp === w
+                ? "border border-[rgba(255,179,0,0.5)] bg-[rgba(255,179,0,0.14)] text-[var(--amber)]"
+                : "text-[var(--muted)] hover:text-[var(--ink)]"
+            }`}
+          >
+            {w}×
+          </button>
+        ))}
+      </div>
       {snap ? (
         <FlightHUD
           snap={snap}

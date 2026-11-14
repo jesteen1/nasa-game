@@ -12,9 +12,13 @@ export type SfxCue =
   | "beep"
   | "final"
   | "click"
+  | "clamp"
   | "ignition"
   | "liftoff"
   | "separation"
+  | "latch"
+  | "puff"
+  | "boom"
   | "fairing"
   | "deploy"
   | "maxq"
@@ -84,6 +88,10 @@ class SfxEngine {
       case "click":
         this.blip(240, 0.045, "square", 0.04);
         break;
+      case "clamp":
+        this.noiseHit(0.1, 0.2, 2600, 1100, "bandpass");
+        this.blip(190, 0.09, "square", 0.1, 110);
+        break;
       case "ignition":
         this.noiseHit(0.7, 0.24, 700, 180);
         this.blip(70, 0.7, "sawtooth", 0.16, 38);
@@ -96,6 +104,17 @@ class SfxEngine {
       case "separation":
         this.blip(95, 0.35, "triangle", 0.28, 50);
         this.noiseHit(0.3, 0.22, 1600, 350, "bandpass");
+        break;
+      case "latch":
+        this.noiseHit(0.22, 0.24, 1700, 320, "bandpass");
+        this.blip(88, 0.26, "triangle", 0.2, 55);
+        break;
+      case "puff":
+        this.noiseHit(0.4, 0.14, 3200, 1100, "highpass");
+        break;
+      case "boom":
+        this.blip(58, 1.3, "sine", 0.26, 26);
+        this.noiseHit(1.1, 0.18, 500, 60, "lowpass", 0.03);
         break;
       case "fairing":
         this.noiseHit(0.45, 0.18, 500, 5000, "highpass");

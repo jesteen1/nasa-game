@@ -118,10 +118,11 @@ function label(ctx: CanvasRenderingContext2D, w: number, h: number, text: string
 
 function drawTank(ctx: CanvasRenderingContext2D, w: number, h: number, part: Part) {
   bodyGradient(ctx, w, h, part.tint);
-  roundRect(ctx, w * 0.02, h * 0.015, w * 0.96, h * 0.97, w * 0.1);
+  // Fill the full footprint so stacked tanks/rings join without transparent seams.
+  ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = "rgba(0,229,255,0.55)";
   ctx.lineWidth = Math.max(1, w * 0.015);
-  ctx.stroke();
+  ctx.strokeRect(0, 0, w, h);
 
   panelSeams(ctx, w, h, Math.max(3, Math.round(h / Math.max(18, w * 0.5))));
 
@@ -134,8 +135,15 @@ function drawTank(ctx: CanvasRenderingContext2D, w: number, h: number, part: Par
 }
 
 function drawEngine(ctx: CanvasRenderingContext2D, w: number, h: number, part: Part) {
-  const topY = h * 0.14;
-  const botY = h * 0.97;
+  // Full-width thrust plate seals the engine to the tank above it.
+  ctx.fillStyle = "#233247";
+  ctx.fillRect(0, 0, w, h * 0.13);
+  ctx.strokeStyle = "rgba(0,229,255,0.55)";
+  ctx.lineWidth = Math.max(1, w * 0.02);
+  ctx.strokeRect(0, 0, w, h * 0.13);
+
+  const topY = h * 0.13;
+  const botY = h;
   const topHalf = w * 0.17;
   const botHalf = w * 0.47;
 
@@ -199,7 +207,7 @@ function drawEngine(ctx: CanvasRenderingContext2D, w: number, h: number, part: P
 }
 
 function drawFairing(ctx: CanvasRenderingContext2D, w: number, h: number, part: Part) {
-  const baseY = h * 0.97;
+  const baseY = h;
   ctx.beginPath();
   ctx.moveTo(w * 0.06, baseY);
   ctx.lineTo(w * 0.06, h * 0.34);
@@ -220,6 +228,10 @@ function drawFairing(ctx: CanvasRenderingContext2D, w: number, h: number, part: 
   ctx.moveTo(w * 0.5, h * 0.02);
   ctx.lineTo(w * 0.5, baseY);
   ctx.stroke();
+
+  // base adapter band keeps the fairing flush with the avionics ring below
+  ctx.fillStyle = "#2a3a50";
+  ctx.fillRect(w * 0.06, baseY - Math.max(3, h * 0.02), w * 0.88, Math.max(3, h * 0.02));
 
   ctx.fillStyle = "rgba(0,229,255,0.7)";
   ctx.fillRect(w * 0.08, h * 0.44, w * 0.84, Math.max(1, h * 0.008));
@@ -260,11 +272,10 @@ function drawInterstage(ctx: CanvasRenderingContext2D, w: number, h: number, par
 
 function drawAvionics(ctx: CanvasRenderingContext2D, w: number, h: number, part: Part) {
   ctx.fillStyle = "#101a2e";
-  roundRect(ctx, w * 0.04, h * 0.1, w * 0.92, h * 0.8, w * 0.05);
-  ctx.fill();
+  ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = "rgba(0,229,255,0.8)";
   ctx.lineWidth = Math.max(1, w * 0.02);
-  ctx.stroke();
+  ctx.strokeRect(0, 0, w, h);
 
   const accent = part.tint.startsWith("#") ? part.tint : "#00e5ff";
   for (let i = 0; i < 5; i++) {
@@ -400,6 +411,46 @@ export function partTexture(part: Part): THREE.Texture | null {
   texture.anisotropy = 4;
   texture.needsUpdate = true;
   cache.set(key, texture);
+  return texture;
+}
+
+export function gridFinTexture(): THREE.Texture | null {
+  if (typeof document === "undefined") return null;
+  const hit = cache.get("grid-fin");
+  if (hit) return hit;
+
+  const size = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, size, size);
+
+  ctx.fillStyle = "#1a2637";
+  ctx.fillRect(0, 0, size, size);
+  ctx.strokeStyle = "rgba(142,163,191,0.8)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(2, 2, size - 4, size - 4);
+  ctx.lineWidth = 1.5;
+  for (let i = 1; i < 5; i++) {
+    const p = (size / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(p, 4);
+    ctx.lineTo(p, size - 4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(4, p);
+    ctx.lineTo(size - 4, p);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "rgba(0,229,255,0.22)";
+  ctx.fillRect(0, size * 0.42, size, size * 0.16);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  texture.needsUpdate = true;
+  cache.set("grid-fin", texture);
   return texture;
 }
 

@@ -7,6 +7,11 @@ Assemble a launch vehicle from real-world parts, verify TWR / Δv / CoM-CoP, the
 seven-phase ascent and deploy the payload — or watch it fail for a physically plausible
 reason.
 
+Launch stays locked until the core vehicle is complete: stage engine(s), tank(s), payload
+fairing and avionics, plus the interstage and upper-stage hardware on two-stage rockets.
+Empty mounts/bays are selectable but cannot fly. Present-but-incompatible hardware is still
+allowed — that is what the deterministic physics failures are for.
+
 ## Getting started
 
 ```bash
@@ -114,9 +119,13 @@ The About link is in the briefing header, the failure-guide header and the game 
 
 All audio is synthesised at runtime with the Web Audio API — no asset files.
 
-- **Cues:** countdown beeps, ignition, liftoff, MECO/staging, upper-stage ignition,
-  Max Q, fairing jettison, payload deploy, mission success, failure, abort and a two-beep
-  **warning alert**.
+- **Cues:** countdown beeps, clamp release, ignition, liftoff, MECO/staging, latch + cold-gas
+  puff, Max-Q boom, upper-stage ignition, fairing, deploy, success, failure, abort and the
+  existing two-beep warning alert.
+- **T−0 cinematic (every launch, over live flight):** a 6 s overlay with ignition flash,
+  pad smoke, ascent streaks, LIFTOFF → TOWER CLEAR → ASCENT NOMINAL callouts and a live
+  altitude/velocity readout. It never pauses the sim, never blocks controls and fades out
+  into the normal HUD.
 - **Warning alert:** fires once for each new preflight warning in the analysis panel and each
   new in-flight warning (Max Q build-up, MECO, fairing-ready, etc.).
 - **Engine rumble:** looping brown noise plus a sub-oscillator; gain and brightness follow
@@ -127,11 +136,14 @@ All audio is synthesised at runtime with the Web Audio API — no asset files.
   button; the first pointer/key press in flight also unlocks it.
 
 The briefing hero also has a detailed **2D SVG rocket** (`ui/RocketArt.tsx`) on a launch pad:
-it hovers with a flickering exhaust, auto-lifts off on page load with smoke, and a
-**Replay launch** button restarts the animation. The same art powers the in-flight
+it hovers with a flickering exhaust, then climbs slowly to the top edge of the pad panel and
+stays there (no fade-out), with a **Replay launch** button. The same art powers the in-flight
 countdown overlay (`ui/PadLaunch.tsx`): the 2D rocket holds on the pad through T−10, lifts
-at T−0, then cross-fades into the three.js ascent. Everything is vector + CSS — no image
-assets required.
+at T−0, then cross-fades into the three.js ascent. In flight, the camera stays centred on the
+vehicle until **100 km**, then lets it climb to the top edge by ~125 km and keeps it visible
+there. The assembled stack renders with full-height part textures (no transparent seams), a
+thrust structure bridging the engine to the tank, and small grid fins at the base. Everything
+is vector/CSS or procedural canvas — no image assets required.
 
 The launch view also has a centred animation overlay (`LaunchFX`): pulsing countdown rings,
 an ignition flash, a `LIFTOFF` banner, exhaust smoke puffs and ascent speed streaks, plus a

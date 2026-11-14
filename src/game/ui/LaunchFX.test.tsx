@@ -17,7 +17,6 @@ describe("LaunchFX", () => {
 
     for (let i = 0; i < 10.5 / STEP; i++) engine.step(STEP);
     const liftoff = renderToStaticMarkup(<LaunchFX snap={engine.getSnapshot()} />);
-    expect(liftoff).toContain("Liftoff");
     expect(liftoff).toContain("fx-flash");
     expect(liftoff).toContain("fx-smoke");
 

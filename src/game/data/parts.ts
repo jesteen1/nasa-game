@@ -38,7 +38,7 @@ export const PARTS: Part[] = [
     massKg: 0,
     heightM: 0,
     widthM: 0,
-    description: "No engine installed. Nothing to ignite.",
+    description: "No engine installed. Nothing to ignite — launch is locked.",
     tint: "#3a4d68",
   }),
   part({
@@ -49,7 +49,7 @@ export const PARTS: Part[] = [
     massKg: 0,
     heightM: 0,
     widthM: 0,
-    description: "No propellant tank installed.",
+    description: "No propellant tank installed — launch is locked.",
     tint: "#3a4d68",
   }),
   part({
@@ -93,7 +93,7 @@ export const PARTS: Part[] = [
     massKg: 0,
     heightM: 0,
     widthM: 0,
-    description: "Exposed payload. Only viable for suborbital flights.",
+    description: "No fairing. The payload is exposed — the pad will not clear this vehicle.",
     tint: "#3a4d68",
   }),
   part({

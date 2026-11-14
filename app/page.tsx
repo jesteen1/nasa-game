@@ -7,7 +7,6 @@ import { sfx } from "@/src/game/audio/sfx";
 import { FAILURE_GUIDE } from "@/src/game/data/failureGuide";
 import { useGame } from "@/src/game/store/game";
 import RocketArt from "@/src/game/ui/RocketArt";
-import type { RocketArtMode } from "@/src/game/ui/RocketArt";
 import SoundToggle from "@/src/game/ui/SoundToggle";
 
 const SLOTS = [
@@ -86,8 +85,8 @@ export default function Home() {
   const deleteProfile = useGame((s) => s.deleteProfile);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [launchPhase, setLaunchPhase] = useState<RocketArtMode>("launching");
   const [launchKey, setLaunchKey] = useState(0);
+  const [showSmoke, setShowSmoke] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -95,24 +94,16 @@ export default function Home() {
   }, [bootstrap]);
 
   useEffect(() => {
-    if (launchPhase === "launching") {
-      const timer = window.setTimeout(() => setLaunchPhase("away"), 5500);
-      return () => window.clearTimeout(timer);
-    }
-    if (launchPhase === "away") {
-      const timer = window.setTimeout(() => {
-        setLaunchKey((key) => key + 1);
-        setLaunchPhase("launching");
-      }, 1800);
-      return () => window.clearTimeout(timer);
-    }
-  }, [launchPhase, launchKey]);
+    if (!showSmoke) return;
+    const timer = window.setTimeout(() => setShowSmoke(false), 3600);
+    return () => window.clearTimeout(timer);
+  }, [showSmoke, launchKey]);
 
   const replayLaunch = () => {
     sfx.unlock();
     sfx.playCue("liftoff");
+    setShowSmoke(true);
     setLaunchKey((key) => key + 1);
-    setLaunchPhase("launching");
   };
 
   const canPlay = bootstrapped && Boolean(activeProfile);
@@ -230,7 +221,7 @@ export default function Home() {
                 <div className="absolute bottom-16 left-[calc(50%-98px)] h-1 w-11 bg-[#2a3a50]" />
                 <div className="absolute bottom-28 left-[calc(50%-98px)] h-1 w-11 bg-[#2a3a50]" />
 
-                {launchPhase === "launching" ? (
+                {showSmoke ? (
                   <div className="absolute inset-x-0 bottom-6 h-44">
                     {PAD_SMOKE.map((puff, index) => (
                       <span
@@ -247,26 +238,24 @@ export default function Home() {
                   </div>
                 ) : null}
 
-                <RocketArt key={launchKey} mode={launchPhase} />
+                <RocketArt key={launchKey} mode="launching" />
 
                 <div className="absolute left-3 top-3 font-mono text-[8px] uppercase tracking-[0.18em] text-[#c9d8ea]">
                   Pad 39A · vehicle RS-01
                 </div>
                 <div
                   className={`absolute right-3 top-3 rounded-sm border px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] ${
-                    launchPhase === "launching"
+                    showSmoke
                       ? "border-[rgba(255,179,0,0.5)] text-[var(--amber)]"
                       : "border-[var(--line)] text-[var(--muted)]"
                   }`}
                 >
-                  {launchPhase === "launching" ? "Liftoff" : "Pad reset"}
+                  {showSmoke ? "Liftoff" : "Ascent"}
                 </div>
 
                 <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2.5">
                   <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
-                    {launchPhase === "launching"
-                      ? "T+00:00:03 · nominal"
-                      : "Pad reset · next launch in 2 s"}
+                    {showSmoke ? "T+00:00:03 · nominal" : "Ascent nominal · replay available"}
                   </span>
                   <button
                     type="button"
@@ -420,6 +409,12 @@ export default function Home() {
               upper-stage slots. Each part has a mass, a thrust or a structural rating, and the
               combination — not any single part — decides whether the rocket flies.
             </p>
+            <p className="mt-2 rounded-sm border border-[rgba(255,179,0,0.35)] bg-[rgba(255,179,0,0.06)] px-2.5 py-2 font-mono text-[8px] uppercase leading-relaxed tracking-[0.1em] text-[var(--amber)]">
+              Launch is locked until the core vehicle is complete: stage engine(s), tank(s),
+              payload fairing and avionics — plus the interstage and upper-stage engine/tank on
+              two-stage vehicles. Empty mounts and empty bays can be selected, but the pad will
+              not clear them.
+            </p>
             <dl className="mt-3 grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
               {SLOTS.map(([slot, note]) => (
                 <div key={slot} className="flex flex-col border-b border-[var(--line)]/60 pb-1">
@@ -491,6 +486,10 @@ export default function Home() {
             <p className="mt-3 font-mono text-[8px] uppercase leading-relaxed tracking-[0.1em] text-[var(--amber)]">
               Tip: drop the throttle to ~70 % as Q approaches its peak, then return to full
               thrust after the vehicle clears the dense air.
+            </p>
+            <p className="mt-2 font-mono text-[8px] uppercase leading-relaxed tracking-[0.1em] text-[var(--muted)]">
+              The launch button stays locked until the required slots are installed. Present but
+              incompatible hardware is allowed — that is what the physics failures are for.
             </p>
           </Section>
 

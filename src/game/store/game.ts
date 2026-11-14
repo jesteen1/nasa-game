@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { getVehicle, MAX_TIER } from "../data/vehicles";
+import { missingSlots } from "../sim/validate";
 import type { BuildConfig, MissionResult, SlotId } from "../types";
 
 type Screen = "vab" | "flight" | "result";
@@ -32,7 +33,7 @@ interface GameState {
   setSlot: (slot: SlotId, partId: string) => void;
   resetBuild: () => void;
   toggleSound: () => void;
-  launch: () => void;
+  launch: () => boolean;
   finish: (result: MissionResult) => void;
   backToVab: () => void;
   bootstrap: () => void;
@@ -171,8 +172,12 @@ export const useGame = create<GameState>()(
 
       toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),
 
-      launch: () =>
-        set((state) => ({ screen: "flight", result: null, runId: state.runId + 1 })),
+      launch: () => {
+        const state = get();
+        if (missingSlots(getVehicle(state.tier), state.build).length > 0) return false;
+        set({ screen: "flight", result: null, runId: state.runId + 1 });
+        return true;
+      },
 
       finish: (result) =>
         set((state) => ({

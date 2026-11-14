@@ -60,7 +60,8 @@ export default function FailuresPage() {
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#c9d8ea]">
             Every failure in Rocket Simulator comes from a concrete rule in the physics engine,
             not a random roll. This page lists each error code, the phase it fires in, the reason
-            the vehicle is destroyed, and the build or flight changes that prevent it.
+            the vehicle is destroyed, and the build or flight changes that prevent it. Incomplete
+            vehicles never reach the pad — if a required slot is empty, launch stays locked.
           </p>
           <div className="mt-4 flex flex-wrap gap-2 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
             <span className="rounded-sm border border-[var(--line)] bg-black/20 px-2 py-1">

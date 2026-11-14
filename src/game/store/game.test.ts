@@ -101,4 +101,19 @@ describe("commander profiles", () => {
     await useGame.persist.rehydrate();
     expect(store().soundOn).toBe(false);
   });
+
+  it("blocks launch while the vehicle is incomplete", () => {
+    store().createProfile("Armstrong");
+    expect(store().launch()).toBe(true);
+    expect(store().screen).toBe("flight");
+
+    store().backToVab();
+    store().setSlot("s1Engine", "none_engine");
+    expect(store().launch()).toBe(false);
+    expect(store().screen).toBe("vab");
+
+    store().setSlot("s1Engine", "eng_htpb_solid");
+    expect(store().launch()).toBe(true);
+    expect(store().screen).toBe("flight");
+  });
 });

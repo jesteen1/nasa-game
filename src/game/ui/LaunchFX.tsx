@@ -47,12 +47,6 @@ export default function LaunchFX({ snap }: { snap: SimSnapshot | null }) {
         <div className="fx-flash absolute inset-0 bg-[radial-gradient(circle_at_50%_58%,rgba(255,255,255,0.85),rgba(255,179,0,0.5)_26%,rgba(255,92,51,0.18)_48%,transparent_68%)]" />
       )}
 
-      {liftoff && (
-        <div className="fx-liftoff absolute left-1/2 top-[34%] whitespace-nowrap font-mono text-3xl font-semibold uppercase tracking-[0.42em] text-white drop-shadow-[0_0_28px_rgba(255,179,0,0.8)] sm:text-5xl">
-          Liftoff
-        </div>
-      )}
-
       {ascent && (
         <div className="absolute inset-y-0 left-1/2 w-[320px] -translate-x-1/2 sm:w-[520px]">
           {STREAKS.map((streak, index) => (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getPart, partsForSlot, SLOT_CATEGORY, SLOT_LABEL } from "../data/parts";
 import { sfx } from "../audio/sfx";
 import { useGame } from "../store/game";
+import { missingSlots } from "../sim/validate";
 import type { Part, SlotId, Vehicle } from "../types";
 import { fmtInt, fmtMass } from "./format";
 
@@ -89,6 +90,8 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
   const launch = useGame((s) => s.launch);
   const [openSlot, setOpenSlot] = useState<SlotId | null>("s1Engine");
   const [confirming, setConfirming] = useState(false);
+  const missing = missingSlots(vehicle, build);
+  const complete = missing.length === 0;
 
   const openOptions = openSlot
     ? partsForSlot(SLOT_CATEGORY[openSlot], vehicle.tier)
@@ -100,7 +103,9 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
         <div>
           <h2 className="panel-title">Vehicle Assembly</h2>
           <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">
-            {build.s1Engine ? "10-slot configuration" : "assembly bay"}
+            {complete
+              ? "flight ready"
+              : `${missing.length} required slot${missing.length === 1 ? "" : "s"} empty`}
           </p>
         </div>
         <button
@@ -183,8 +188,18 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
           </div>
           <button
             type="button"
+            disabled={!complete}
+            title={
+              complete
+                ? "Commit this vehicle to flight"
+                : `Install hardware in: ${missing.map((slot) => SLOT_LABEL[slot]).join(", ")}`
+            }
             onClick={() => {
               sfx.unlock();
+              if (!complete) {
+                sfx.playCue("warning");
+                return;
+              }
               if (!confirming) {
                 sfx.playCue("click");
                 setConfirming(true);
@@ -195,18 +210,26 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
               launch();
             }}
             className={`shrink-0 rounded-md px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] transition ${
-              confirming
-                ? "bg-[var(--amber)] text-[#1a1200] shadow-[0_0_24px_rgba(255,179,0,0.35)]"
-                : "bg-[var(--cyan)] text-[#001014] shadow-[0_0_24px_rgba(0,229,255,0.28)] hover:bg-white"
+              !complete
+                ? "cursor-not-allowed border border-[rgba(255,179,0,0.35)] bg-[rgba(255,179,0,0.08)] text-[var(--amber)]"
+                : confirming
+                  ? "bg-[var(--amber)] text-[#1a1200] shadow-[0_0_24px_rgba(255,179,0,0.35)]"
+                  : "bg-[var(--cyan)] text-[#001014] shadow-[0_0_24px_rgba(0,229,255,0.28)] hover:bg-white"
             }`}
           >
-            {confirming ? "Confirm launch" : "Initiate launch"}
+            {!complete ? "Vehicle incomplete" : confirming ? "Confirm launch" : "Initiate launch"}
           </button>
         </div>
-        <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">
-          {confirming
-            ? "Warning: configuration will be committed to the flight vehicle."
-            : "Launch commits the current build. Warnings do not block launch."}
+        <p
+          className={`mt-2 font-mono text-[9px] uppercase tracking-[0.12em] ${
+            complete ? "text-[var(--muted)]" : "text-[var(--amber)]"
+          }`}
+        >
+          {!complete
+            ? `Missing hardware: ${missing.map((slot) => SLOT_LABEL[slot]).join(" · ")}. Launch is locked until every required slot is installed.`
+            : confirming
+              ? "Warning: configuration will be committed to the flight vehicle."
+              : "Launch commits the current build. Warnings do not block launch."}
         </p>
       </footer>
     </div>
