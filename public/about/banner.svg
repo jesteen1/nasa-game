@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" role="img" aria-label="Mission control placeholder">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#02030a"/>
+      <stop offset="0.55" stop-color="#0b1424"/>
+      <stop offset="1" stop-color="#122a47"/>
+    </linearGradient>
+    <radialGradient id="pad" cx="50%" cy="100%" r="60%">
+      <stop offset="0" stop-color="#00e5ff" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#00e5ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="700" fill="url(#sky)"/>
+  <rect width="1600" height="700" fill="url(#pad)"/>
+  <g stroke="#8ea3bf" stroke-opacity="0.12">
+    <path d="M0 0v700"/><path d="M90 0v700"/><path d="M180 0v700"/><path d="M270 0v700"/><path d="M360 0v700"/><path d="M450 0v700"/><path d="M540 0v700"/><path d="M630 0v700"/><path d="M720 0v700"/><path d="M810 0v700"/><path d="M900 0v700"/><path d="M990 0v700"/><path d="M1080 0v700"/><path d="M1170 0v700"/><path d="M1260 0v700"/><path d="M1350 0v700"/><path d="M1440 0v700"/><path d="M1530 0v700"/><path d="M1620 0v700"/>
+    <path d="M0 0h1600"/><path d="M0 90h1600"/><path d="M0 180h1600"/><path d="M0 270h1600"/><path d="M0 360h1600"/><path d="M0 450h1600"/><path d="M0 540h1600"/><path d="M0 630h1600"/>
+  </g>
+  <g transform="translate(800 620)" fill="#00e5ff">
+    <path d="M-26 0h52l-8-260c-2-34-8-62-18-84-10 22-16 50-18 84z" fill-opacity="0.16" stroke="#00e5ff" stroke-opacity="0.6" stroke-width="3"/>
+    <path d="M-40 0h80l-6-40h-68z" fill-opacity="0.2" stroke="#00e5ff" stroke-opacity="0.5" stroke-width="3"/>
+    <path d="M-26 0l26 150 26-150z" fill="#ffb300" fill-opacity="0.32"/>
+  </g>
+  <text x="800" y="150" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="46" fill="#f4f6f9" letter-spacing="14">ROCKET SIMULATOR</text>
+  <text x="800" y="192" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="18" fill="#8ea3bf" letter-spacing="8">MISSION CONTROL · BUILD NOTES</text>
+  <text x="800" y="660" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="14" fill="#00e5ff" fill-opacity="0.7" letter-spacing="4">SCREENSHOT PLACEHOLDER</text>
+</svg>

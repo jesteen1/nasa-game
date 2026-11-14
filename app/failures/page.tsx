@@ -34,6 +34,12 @@ export default function FailuresPage() {
             Briefing
           </Link>
           <Link
+            href="/about"
+            className="rounded-sm border border-[var(--line)] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[rgba(0,229,255,0.45)] hover:text-[var(--cyan)]"
+          >
+            About
+          </Link>
+          <Link
             href="/game"
             className="rounded-sm border border-[rgba(0,229,255,0.45)] bg-[rgba(0,229,255,0.08)] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cyan)] transition hover:bg-[rgba(0,229,255,0.16)]"
           >

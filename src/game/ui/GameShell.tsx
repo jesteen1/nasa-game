@@ -234,6 +234,10 @@ export default function GameShell() {
           <Link href="/failures" className="underline decoration-dotted hover:text-[var(--cyan)]">
             failure guide
           </Link>
+          {" · "}
+          <Link href="/about" className="underline decoration-dotted hover:text-[var(--cyan)]">
+            about
+          </Link>
         </span>
         <span>
           {screen === "vab"

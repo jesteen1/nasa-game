@@ -149,6 +149,12 @@ export default function Home() {
           >
             Failure guide
           </Link>
+          <Link
+            href="/about"
+            className="hidden rounded-sm border border-[var(--line)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[rgba(0,229,255,0.45)] hover:text-[var(--cyan)] sm:block"
+          >
+            About
+          </Link>
           <SoundToggle />
         </div>
       </header>

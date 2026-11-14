@@ -22,6 +22,7 @@ briefing; add/select a callsign there and press **Play the game**.
 | `/` | Mission briefing, commander profiles, how to play |
 | `/game` | Vehicle Assembly Building + flight simulation |
 | `/failures` | Failure/error guide: why it happens + what to change |
+| `/about` | Team, build story and project images |
 | `/instructions` | Redirects to `/` (legacy URL) |
 
 ## Scripts
@@ -94,6 +95,21 @@ The page is generated from `src/game/data/failureGuide.ts`, which maps each rule
 explanation and fixes; a test fails if a rule is missing from the guide. It is linked from
 the briefing, the game footer and the result modal (deep-links to the exact failure).
 
+## About page and team images
+
+`/about` introduces the five-person team, shows the step-by-step build story and lists the
+tech stack. It uses the Next.js `Image` component (`unoptimized` for local SVG placeholders).
+
+To add the real content later:
+
+1. Drop portraits into `public/team/` (SVG/PNG/JPG; keep square-ish, e.g. 600×600).
+2. Edit `src/game/data/about.ts` — update `name`, `role`, `focus` and `image` for each
+   member (or replace the placeholder files and keep the paths).
+3. Replace `public/about/banner.svg` with a real screenshot if desired.
+4. Keep five entries: a test checks the team count and that every image path exists.
+
+The About link is in the briefing header, the failure-guide header and the game footer.
+
 ## Sound effects and launch animation
 
 All audio is synthesised at runtime with the Web Audio API — no asset files.
@@ -115,9 +131,9 @@ camera shake during ignition and explosions. It is disabled under
 ## Project layout
 
 ```
-app/                     Next.js routes (briefing, game)
+app/                     Next.js routes (briefing, game, failures, about)
 src/game/types.ts        Core types
-src/game/data/           Part library and vehicle tiers
+src/game/data/           Part library, vehicle tiers, failure guide, about/team
 src/game/sim/            Atmosphere, vehicle analysis, failures, flight integrator
 src/game/store/game.ts   zustand store, per-user profiles and persistence
 src/game/audio/sfx.ts    procedural Web Audio cues + engine rumble
