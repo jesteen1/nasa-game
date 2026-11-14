@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { sfx } from "../audio/sfx";
+import type { SfxCue } from "../audio/sfx";
 import LaunchScene from "../render/LaunchScene";
 import { SimEngine } from "../sim/engine";
 import { computeStats } from "../sim/vehicle";
 import { useGame } from "../store/game";
-import type { SimSnapshot, TelemetrySample, Vehicle } from "../types";
+import type { SimEvent, SimSnapshot, TelemetrySample, Vehicle } from "../types";
 import FlightHUD from "./FlightHUD";
+import LaunchFX from "./LaunchFX";
 
 const FIXED_STEP = 1 / 60;
 const HUD_INTERVAL = 100;
@@ -20,6 +23,21 @@ function downsample(samples: TelemetrySample[]): TelemetrySample[] {
   const last = samples[samples.length - 1];
   if (out[out.length - 1] !== last) out.push(last);
   return out;
+}
+
+function cueForEvent(event: SimEvent): SfxCue | null {
+  const message = event.message;
+  if (message.includes("LIFTOFF")) return "liftoff";
+  if (message.includes("STAGE SEPARATION")) return "separation";
+  if (message.includes("SES-1")) return "ignition";
+  if (message.includes("MECO") || message.includes("SECO")) return "separation";
+  if (message.includes("FAIRING JETTISON")) return "fairing";
+  if (message.includes("PAYLOAD DEPLOY")) return "deploy";
+  if (message.includes("MAX Q")) return "maxq";
+  if (message.includes("MISSION SUCCESS")) return "success";
+  if (message.includes("ABORT")) return "abort";
+  if (event.tone === "bad") return "failure";
+  return null;
 }
 
 export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
@@ -40,6 +58,8 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
     let lastHud = 0;
     let finished = false;
     let finishTimer = 0;
+    let lastCount: number | null = null;
+    const seenEvents = new Set<string>();
 
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
@@ -59,11 +79,48 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
         const current = engine.getSnapshot();
         setSnap(current);
         setSamples(downsample(engine.samples));
+
+        // Countdown beeps -------------------------------------------------
+        if (current.status === "countdown") {
+          const seconds = Math.max(0, Math.ceil(-current.t));
+          if (seconds !== lastCount) {
+            lastCount = seconds;
+            sfx.playCue(seconds <= 1 ? "final" : "beep");
+          }
+        }
+
+        // Engine rumble ---------------------------------------------------
+        const thrusting =
+          current.status === "flying" &&
+          ((current.stage === 1 &&
+            !current.stage1Burnout &&
+            current.propellant1Kg > 0) ||
+            (current.stage === 2 &&
+              current.stage2Ignited &&
+              !current.seco &&
+              current.propellant2Kg > 0));
+        const rumble = thrusting
+          ? current.throttle
+          : current.status === "countdown" && current.t > -3
+            ? 0.16
+            : 0;
+        sfx.setEngine(rumble);
+
+        // Mission event cues ---------------------------------------------
+        for (const event of current.events) {
+          const key = `${event.t.toFixed(2)}|${event.message}`;
+          if (seenEvents.has(key)) continue;
+          seenEvents.add(key);
+          const cue = cueForEvent(event);
+          if (cue) sfx.playCue(cue);
+        }
+
         if (
           !finished &&
           (current.status === "success" || current.status === "failure")
         ) {
           finished = true;
+          sfx.setEngine(0);
           const delay = current.status === "success" ? 1200 : 2400;
           finishTimer = window.setTimeout(() => finish(engine.getResult()), delay);
         }
@@ -75,9 +132,21 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
     return () => {
       cancelAnimationFrame(raf);
       if (finishTimer) window.clearTimeout(finishTimer);
+      sfx.setEngine(0);
       engineRef.current = null;
     };
   }, [vehicle, build, finish]);
+
+  // Browsers only allow audio after a gesture; resume on the first one.
+  useEffect(() => {
+    const unlock = () => sfx.unlock();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
 
   const onThrottle = useCallback((value: number) => {
     const engine = engineRef.current;
@@ -116,6 +185,7 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
   return (
     <div className="relative min-h-0 flex-1 overflow-hidden">
       <LaunchScene engineRef={engineRef} vehicle={vehicle} build={build} />
+      <LaunchFX snap={snap} />
       {snap ? (
         <FlightHUD
           snap={snap}
@@ -128,11 +198,11 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
         />
       ) : null}
       {snap?.status === "countdown" ? (
-        <div className="pointer-events-none absolute inset-x-0 top-1/3 flex flex-col items-center gap-1 text-center">
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
           <div className="font-mono text-[10px] uppercase tracking-[0.5em] text-[var(--amber)]">
             Terminal count
           </div>
-          <div className="font-mono text-6xl font-semibold text-white/90 drop-shadow-[0_0_20px_rgba(255,179,0,0.35)]">
+          <div className="font-mono text-6xl font-semibold text-white/90 drop-shadow-[0_0_20px_rgba(255,179,0,0.35)] sm:text-7xl">
             T−{Math.max(0, Math.ceil(-snap.t))}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.24em] text-[var(--muted)]">

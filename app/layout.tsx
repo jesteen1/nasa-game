@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Orbital Architect — Rocket Engineering Simulator",
+  title: "Rocket Simulator — Build, Launch, Orbit",
   description:
-    "Build launch vehicles, verify TWR and Δv, then fly seven ascent phases through a deterministic NASA-style telemetry simulation.",
+    "Assemble launch vehicles, verify TWR and Δv, then fly seven ascent phases through a deterministic NASA-style telemetry simulation.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

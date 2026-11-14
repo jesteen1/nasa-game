@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
+import { sfx } from "@/src/game/audio/sfx";
+import { FAILURE_GUIDE } from "@/src/game/data/failureGuide";
 import { useGame } from "@/src/game/store/game";
+import SoundToggle from "@/src/game/ui/SoundToggle";
 
 const SLOTS = [
   ["S1 engine", "liftoff thrust and sea-level vs vacuum Isp"],
@@ -34,18 +37,6 @@ const PHASES = [
   ["ASCENT", "Upper stage", "Pitch over and build horizontal velocity."],
   ["INSERT", "SECO", "Upper stage cuts off. You now need orbital velocity."],
   ["DEPLOY", "Payload", "Press D once SECO is confirmed and the target velocity is reached."],
-];
-
-const FAILURES = [
-  ["Vacuum nozzle at sea level", "Use a sea-level engine on stage 1."],
-  ["Cryogenic boil-off", "Use the insulated LH2 tank, not the bare one."],
-  ["TWR below 1.0", "Add boosters, a stronger engine, or less tank mass."],
-  ["Pitch divergence", "Fit fins when the stack has no gimballed control."],
-  ["Interstage snap at Max Q", "Match a hammerhead fairing with a strong interstage."],
-  ["Dynamic-pressure redline", "Throttle down near Max Q below 75 %."],
-  ["Turbopump cavitation", "Install the ullage kit before staging."],
-  ["Aero-thermal overload", "Keep the fairing on until above 80 km."],
-  ["Payload burned up", "Deploy only after SECO, above orbital velocity."],
 ];
 
 function Section({
@@ -125,13 +116,13 @@ export default function Home() {
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--navy)] text-[var(--ink)]">
       <header className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-[var(--line)] bg-[rgba(5,10,20,0.92)] px-3 py-2.5 backdrop-blur sm:px-5">
-        <Link href="/" className="flex items-center gap-2" aria-label="Orbital Architect home">
+        <Link href="/" className="flex items-center gap-2" aria-label="Rocket Simulator home">
           <span className="grid h-8 w-8 place-items-center rounded-sm border border-[var(--cyan)] bg-[rgba(0,229,255,0.08)] font-mono text-[11px] text-[var(--cyan)]">
-            OA
+            RS
           </span>
           <span className="leading-none">
             <span className="block font-mono text-[11px] font-semibold uppercase tracking-[0.24em]">
-              Orbital Architect
+              Rocket Simulator
             </span>
             <span className="mt-0.5 block font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--muted)]">
               Mission briefing · read before launch
@@ -152,6 +143,13 @@ export default function Home() {
           >
             {activeProfile ?? (bootstrapped ? "Guest" : "…")}
           </span>
+          <Link
+            href="/failures"
+            className="hidden rounded-sm border border-[var(--line)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[rgba(0,229,255,0.45)] hover:text-[var(--cyan)] sm:block"
+          >
+            Failure guide
+          </Link>
+          <SoundToggle />
         </div>
       </header>
 
@@ -293,6 +291,7 @@ export default function Home() {
               <Link
                 href="/game"
                 onClick={(event) => {
+                  sfx.unlock();
                   if (!canPlay) {
                     event.preventDefault();
                     focusName();
@@ -320,9 +319,9 @@ export default function Home() {
         <div className="grid gap-4 lg:grid-cols-2">
           <Section index="01" title="Assemble the vehicle" kicker="Vehicle Assembly Building">
             <p className="text-[13px] leading-relaxed text-[#c9d8ea]">
-              Pick a mission tier, then fill all ten slots. Each part has a mass, a thrust or a
-              structural rating, and the combination — not any single part — decides whether the
-              rocket flies.
+              Pick a mission tier, then fill each available slot. Single-stage vehicles disable the
+              upper-stage slots. Each part has a mass, a thrust or a structural rating, and the
+              combination — not any single part — decides whether the rocket flies.
             </p>
             <dl className="mt-3 grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
               {SLOTS.map(([slot, note]) => (
@@ -335,8 +334,8 @@ export default function Home() {
               ))}
             </dl>
             <p className="mt-3 font-mono text-[8px] uppercase leading-relaxed tracking-[0.1em] text-[var(--amber)]">
-              Red part tags mean the slot is incompatible with this tier — hover the warning for
-              the reason.
+              Slots marked “Not flown on this vehicle” are disabled for this tier. Hover a part to
+              read its description and trade-off before installing it.
             </p>
           </Section>
 
@@ -424,17 +423,26 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {FAILURES.map(([failure, fix]) => (
-                    <tr key={failure} className="border-b border-[var(--line)]/50 align-top">
+                  {FAILURE_GUIDE.map((entry) => (
+                    <tr key={entry.id} className="border-b border-[var(--line)]/50 align-top">
                       <td className="py-1.5 pr-3 text-[11px] leading-snug text-[#e6b3b3]">
-                        {failure}
+                        {entry.short}
                       </td>
-                      <td className="py-1.5 text-[11px] leading-snug text-[var(--muted)]">{fix}</td>
+                      <td className="py-1.5 text-[11px] leading-snug text-[var(--muted)]">
+                        {entry.fixes[0]}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            <Link
+              href="/failures"
+              className="mt-3 flex items-center justify-between gap-2 rounded-sm border border-[rgba(0,229,255,0.35)] bg-[rgba(0,229,255,0.05)] px-2.5 py-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cyan)] transition hover:bg-[rgba(0,229,255,0.12)]"
+            >
+              Full failure guide — cause &amp; fix for every error
+              <span aria-hidden>→</span>
+            </Link>
           </Section>
 
           <Section index="06" title="Win the mission" kicker="Targets and scoring">
@@ -450,8 +458,8 @@ export default function Home() {
                 or too slow destroys the payload.
               </p>
               <p>
-                Success unlocks the next tier and records your best score. Propellant, peak
-                dynamic pressure, timing and remaining mass all feed the score.
+                Success unlocks the next tier and records your best score. Δv margin, peak
+                dynamic pressure and peak G-load feed the score.
               </p>
               <p className="rounded-sm border border-[var(--line)] bg-black/20 px-2.5 py-2 font-mono text-[8px] uppercase leading-relaxed tracking-[0.1em] text-[var(--muted)]">
                 Progress, best scores, history and your callsign are saved in this browser. Reload
@@ -475,6 +483,7 @@ export default function Home() {
           <Link
             href="/game"
             onClick={(event) => {
+              sfx.unlock();
               if (!canPlay) {
                 event.preventDefault();
                 focusName();
@@ -488,7 +497,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-[var(--line)] px-4 py-2 text-center font-mono text-[8px] uppercase tracking-[0.16em] text-[var(--muted)]">
-        Orbital Architect · arcade physics · deterministic 60 Hz sim · no backend
+        Rocket Simulator · arcade physics · deterministic 60 Hz sim · no backend
       </footer>
     </div>
   );

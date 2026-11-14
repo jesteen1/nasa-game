@@ -183,8 +183,178 @@ body {
   background: transparent;
 }
 
+/* Launch sequence FX ------------------------------------------------------ */
+
+.fx-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 229, 255, 0.55);
+  box-shadow:
+    0 0 24px rgba(0, 229, 255, 0.18),
+    inset 0 0 18px rgba(0, 229, 255, 0.12);
+  transform: translate(-50%, -50%) scale(0.3);
+  opacity: 0;
+  animation: fx-ring 2.2s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+.fx-ring--delay {
+  animation-delay: 0.55s;
+  border-color: rgba(255, 179, 0, 0.45);
+}
+
+.fx-ring--delay2 {
+  animation-delay: 1.1s;
+}
+
+.fx-ring--fast {
+  animation-duration: 1.15s;
+}
+
+@keyframes fx-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.25);
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0.25;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+}
+
+.fx-streak {
+  position: absolute;
+  top: -20%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(220, 240, 255, 0.55), transparent);
+  opacity: 0;
+  animation-name: fx-streak;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fx-streak {
+  0% {
+    transform: translateY(-10vh);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(120vh);
+    opacity: 0;
+  }
+}
+
+.fx-smoke {
+  position: absolute;
+  bottom: 0;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    rgba(235, 242, 255, 0.4),
+    rgba(160, 178, 204, 0.16) 55%,
+    transparent 72%
+  );
+  filter: blur(6px);
+  opacity: 0;
+  transform: translate(-50%, 20px) scale(0.5);
+  animation-name: fx-smoke;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fx-smoke {
+  0% {
+    transform: translate(-50%, 30px) scale(0.45);
+    opacity: 0.75;
+  }
+  60% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -170px) scale(1.7);
+    opacity: 0;
+  }
+}
+
+.fx-liftoff {
+  transform: translate(-50%, 0);
+  opacity: 0;
+  animation: fx-liftoff 3s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes fx-liftoff {
+  0% {
+    transform: translate(-50%, 12px) scale(0.94);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  72% {
+    transform: translate(-50%, -4px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -16px) scale(1.05);
+    opacity: 0;
+  }
+}
+
+.fx-flash {
+  opacity: 0;
+  animation: fx-flash 1s ease-out forwards;
+}
+
+@keyframes fx-flash {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fx-failure {
+  opacity: 0;
+  animation: fx-failure 1.6s ease-out forwards;
+}
+
+@keyframes fx-failure {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .status-dot {
     animation: none;
+  }
+  .fx-ring,
+  .fx-streak,
+  .fx-smoke,
+  .fx-liftoff,
+  .fx-flash,
+  .fx-failure {
+    animation: none !important;
+    opacity: 0 !important;
   }
 }

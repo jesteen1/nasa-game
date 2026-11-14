@@ -1,4 +1,4 @@
-# Orbital Architect
+# Rocket Simulator
 
 A 2D rocket-engineering and NASA-style telemetry simulation game built with Next.js 16,
 React 19, three.js and a deterministic fixed-timestep ascent sim.
@@ -21,6 +21,7 @@ briefing; add/select a callsign there and press **Play the game**.
 | --- | --- |
 | `/` | Mission briefing, commander profiles, how to play |
 | `/game` | Vehicle Assembly Building + flight simulation |
+| `/failures` | Failure/error guide: why it happens + what to change |
 | `/instructions` | Redirects to `/` (legacy URL) |
 
 ## Scripts
@@ -77,6 +78,40 @@ The old single-player key (`orbital-architect-save`) is migrated into a named pr
 first time the app loads after this change. Opening `/game` without a selected commander
 redirects back to `/`.
 
+The display name is **Rocket Simulator**; storage keys keep the original
+`orbital-architect-*` prefix so saves created before the rename keep working.
+
+## Failure guide
+
+`/failures` documents every deterministic failure rule (`FAILURE_DEFS`) with:
+
+- the error code and phase,
+- a plain-language “why it happens” explanation,
+- concrete build/flight changes (“What to change”),
+- the raw telemetry warning.
+
+The page is generated from `src/game/data/failureGuide.ts`, which maps each rule id to its
+explanation and fixes; a test fails if a rule is missing from the guide. It is linked from
+the briefing, the game footer and the result modal (deep-links to the exact failure).
+
+## Sound effects and launch animation
+
+All audio is synthesised at runtime with the Web Audio API — no asset files.
+
+- **Cues:** countdown beeps, ignition, liftoff, MECO/staging, upper-stage ignition,
+  Max Q, fairing jettison, payload deploy, mission success, failure and abort.
+- **Engine rumble:** looping brown noise plus a sub-oscillator; gain and brightness follow
+  throttle, and it stops at MECO, SECO, failure or unmount.
+- **Mute:** the header speaker button on `/` and `/game` toggles SFX; the preference is
+  saved per commander (`soundOn` in the profile save).
+- **Gesture-safe:** the `AudioContext` is created/resumed from Play, Launch or the mute
+  button; the first pointer/key press in flight also unlocks it.
+
+The launch view also has a centred animation overlay (`LaunchFX`): pulsing countdown rings,
+an ignition flash, a `LIFTOFF` banner, exhaust smoke puffs and ascent speed streaks, plus a
+camera shake during ignition and explosions. It is disabled under
+`prefers-reduced-motion: reduce`.
+
 ## Project layout
 
 ```
@@ -85,6 +120,7 @@ src/game/types.ts        Core types
 src/game/data/           Part library and vehicle tiers
 src/game/sim/            Atmosphere, vehicle analysis, failures, flight integrator
 src/game/store/game.ts   zustand store, per-user profiles and persistence
+src/game/audio/sfx.ts    procedural Web Audio cues + engine rumble
 src/game/render/         three.js orthographic scene and procedural sprites
-src/game/ui/             VAB, telemetry, flight HUD, result modal
+src/game/ui/             VAB, telemetry, flight HUD, launch FX, result modal
 ```

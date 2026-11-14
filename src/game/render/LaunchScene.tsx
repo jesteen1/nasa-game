@@ -267,8 +267,6 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
           explosionStart = performance.now();
           explosion.visible = true;
           explosion.position.y = snap.failure.id === "pad_burn" ? 8 : 12;
-          const shake = 0.6;
-          camera.position.x = (Math.random() - 0.5) * shake * 12;
         }
         rocketHidden = !noExplosion;
       }
@@ -290,9 +288,20 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
         rocket.visible = true;
       }
 
-      if (!snap || snap.status !== "failure") {
-        camera.position.x = 0;
+      // Camera shake during ignition and explosions
+      let shake = 0;
+      if (snap?.status === "flying" && snap.t < 5) {
+        shake = Math.max(0, (5 - snap.t) / 5) * 1.8;
       }
+      if (snap?.status === "failure" && explosionStart > 0) {
+        shake = Math.max(
+          shake,
+          Math.max(0, 1 - (performance.now() - explosionStart) / 1200) * 3.2,
+        );
+      }
+      camera.position.x = (Math.random() - 0.5) * shake;
+      camera.position.y = targetY + (Math.random() - 0.5) * shake * 0.6;
+      camera.lookAt(0, targetY, 0);
 
       renderer.render(scene, camera);
     };

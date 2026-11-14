@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getPart, partsForSlot, SLOT_CATEGORY, SLOT_LABEL } from "../data/parts";
+import { sfx } from "../audio/sfx";
 import { useGame } from "../store/game";
 import type { Part, SlotId, Vehicle } from "../types";
 import { fmtInt, fmtMass } from "./format";
@@ -182,7 +183,9 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
           <button
             type="button"
             onClick={() => {
+              sfx.unlock();
               if (!confirming) {
+                sfx.playCue("click");
                 setConfirming(true);
                 window.setTimeout(() => setConfirming(false), 5000);
                 return;

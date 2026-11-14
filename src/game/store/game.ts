@@ -22,6 +22,7 @@ interface GameState {
   profiles: string[];
   activeProfile: string | null;
   bootstrapped: boolean;
+  soundOn: boolean;
   build: BuildConfig;
   best: Record<string, number>;
   history: HistoryEntry[];
@@ -30,6 +31,7 @@ interface GameState {
   setTier: (tier: number) => void;
   setSlot: (slot: SlotId, partId: string) => void;
   resetBuild: () => void;
+  toggleSound: () => void;
   launch: () => void;
   finish: (result: MissionResult) => void;
   backToVab: () => void;
@@ -140,6 +142,7 @@ function freshState() {
     tier: 1,
     unlocked: 1,
     playerName: "",
+    soundOn: true,
     build: { ...getVehicle(1).defaults },
     best: {} as Record<string, number>,
     history: [] as HistoryEntry[],
@@ -165,6 +168,8 @@ export const useGame = create<GameState>()(
         set((state) => ({ build: { ...state.build, [slot]: partId } })),
 
       resetBuild: () => set({ build: { ...getVehicle(get().tier).defaults } }),
+
+      toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),
 
       launch: () =>
         set((state) => ({ screen: "flight", result: null, runId: state.runId + 1 })),
@@ -306,6 +311,7 @@ export const useGame = create<GameState>()(
         tier: state.tier,
         build: state.build,
         playerName: state.playerName,
+        soundOn: state.soundOn,
       }),
     },
   ),

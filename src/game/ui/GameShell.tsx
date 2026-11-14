@@ -11,6 +11,7 @@ import type { SimEngine } from "../sim/engine";
 import { useGame } from "../store/game";
 import FlightScreen from "./FlightScreen";
 import ResultModal from "./ResultModal";
+import SoundToggle from "./SoundToggle";
 import TelemetryPanel from "./TelemetryPanel";
 import VabPanel from "./VabPanel";
 import { fmtScore } from "./format";
@@ -81,7 +82,7 @@ function VabScreen({ previewRef }: { previewRef: MutableRefObject<SimEngine | nu
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <div>
             <div className="font-mono text-[8px] uppercase tracking-[0.24em] text-[var(--cyan)]">
-              Orbital Architect
+              Rocket Simulator
             </div>
             <h1 className="mt-0.5 text-lg font-semibold tracking-tight text-white drop-shadow">
               {vehicle.name}
@@ -181,11 +182,11 @@ export default function GameShell() {
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--line)] bg-[rgba(5,10,20,0.85)] px-2.5 py-2 backdrop-blur sm:flex-nowrap sm:gap-4 sm:px-4">
         <div className="flex items-center gap-2">
           <div className="grid h-7 w-7 place-items-center rounded-sm border border-[var(--cyan)] bg-[rgba(0,229,255,0.08)] font-mono text-[11px] text-[var(--cyan)]">
-            OA
+            RS
           </div>
           <div className="leading-none">
             <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--ink)]">
-              Orbital Architect
+              Rocket Simulator
             </div>
             <div className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--muted)]">
               Mission control · Tier {tier}
@@ -214,6 +215,7 @@ export default function GameShell() {
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--cyan)] shadow-[0_0_6px_var(--cyan)]" />
             Save local
           </span>
+          <SoundToggle />
           <span className="hidden lg:inline">Unlocked {unlocked}/5</span>
         </div>
       </header>
@@ -227,7 +229,12 @@ export default function GameShell() {
       )}
 
       <footer className="hidden shrink-0 items-center justify-between border-t border-[var(--line)] px-4 py-1.5 font-mono text-[8px] uppercase tracking-[0.16em] text-[var(--muted)] sm:flex">
-        <span>Sim 60 Hz fixed step · deterministic rules engine · localStorage v1</span>
+        <span>
+          Sim 60 Hz fixed step · deterministic rules engine ·{" "}
+          <Link href="/failures" className="underline decoration-dotted hover:text-[var(--cyan)]">
+            failure guide
+          </Link>
+        </span>
         <span>
           {screen === "vab"
             ? "Assemble · analyse · launch"

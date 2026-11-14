@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import GameShell from "@/src/game/ui/GameShell";
 
 export const metadata: Metadata = {
-  title: "Mission Control — Orbital Architect",
+  title: "Mission Control — Rocket Simulator",
   description:
     "Build and fly launch vehicles in a deterministic NASA-style ascent simulation.",
 };

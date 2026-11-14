@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { getVehicle, MAX_TIER } from "../data/vehicles";
 import { useGame } from "../store/game";
 import { fmtInt, fmtTime } from "./format";
@@ -76,6 +77,13 @@ export default function ResultModal() {
                     <br />
                     CAUSE: {result.failure.cause}
                   </p>
+                  <Link
+                    href={`/failures#${result.failure.id}`}
+                    className="inline-flex items-center gap-1.5 rounded-sm border border-[rgba(0,229,255,0.35)] bg-[rgba(0,229,255,0.05)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--cyan)] transition hover:bg-[rgba(0,229,255,0.12)]"
+                  >
+                    Why this happened &amp; how to fix it
+                    <span aria-hidden>→</span>
+                  </Link>
                 </>
               ) : (
                 <p className="text-[12px] text-[var(--muted)]">The flight ended before target acquisition.</p>

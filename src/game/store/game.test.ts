@@ -87,4 +87,18 @@ describe("commander profiles", () => {
     expect(store().profiles).toContain("Legacy");
     expect(store().activeProfile).toBe("Legacy");
   });
+
+  it("persists the sound preference per commander", async () => {
+    store().createProfile("Armstrong");
+    expect(store().soundOn).toBe(true);
+    store().toggleSound();
+    expect(store().soundOn).toBe(false);
+
+    store().createProfile("Michael");
+    expect(store().soundOn).toBe(true);
+
+    store().selectProfile("Armstrong");
+    await useGame.persist.rehydrate();
+    expect(store().soundOn).toBe(false);
+  });
 });
