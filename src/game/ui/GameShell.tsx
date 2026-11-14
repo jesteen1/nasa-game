@@ -76,8 +76,8 @@ function VabScreen({ previewRef }: { previewRef: MutableRefObject<SimEngine | nu
   const [showBrief, setShowBrief] = useState(false);
 
   return (
-    <main className="grid min-h-0 flex-1 gap-2.5 overflow-y-auto p-2.5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)_minmax(0,1fr)] lg:overflow-hidden">
-      <section className="panel relative min-h-[300px] overflow-hidden lg:min-h-0">
+    <main className="grid min-h-0 flex-1 gap-2.5 overflow-y-auto p-2.5 lg:h-full lg:grid-rows-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)_minmax(0,1fr)] lg:overflow-hidden">
+      <section className="panel relative h-[320px] min-h-[320px] overflow-hidden sm:h-[380px] lg:h-full lg:min-h-[420px]">
         <LaunchScene engineRef={previewRef} vehicle={vehicle} build={build} />
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <div>
@@ -178,7 +178,7 @@ export default function GameShell() {
   if (!activeProfile) return null;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--navy)] text-[var(--ink)]">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[var(--navy)] text-[var(--ink)]">
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--line)] bg-[rgba(5,10,20,0.85)] px-2.5 py-2 backdrop-blur sm:flex-nowrap sm:gap-4 sm:px-4">
         <div className="flex items-center gap-2">
           <div className="grid h-7 w-7 place-items-center rounded-sm border border-[var(--cyan)] bg-[rgba(0,229,255,0.08)] font-mono text-[11px] text-[var(--cyan)]">

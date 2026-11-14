@@ -2065,7 +2065,7 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
       className="relative h-full w-full overflow-hidden bg-[#0b1021]"
       aria-label="Launch vehicle viewport"
     >
-      <canvas ref={canvasRef} className="block h-full w-full" />
+      <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
 
       {/* Interactive VAB Construction Helper Controls */}
       {isVab ? (

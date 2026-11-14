@@ -158,7 +158,18 @@ thank-you). `docs/rocket-simulator-overview.md` is the editable slide-by-slide o
 Slide artwork is in `docs/assets/` (rasterised from the in-repo SVGs). Team portraits are
 placeholders.
 
-## Project layout
+## Troubleshooting
+
+- **Nothing renders in the launch bay / canvas is 0 px tall** — the app shell must use a
+  definite height. The shell uses `h-dvh` and the canvas is `absolute inset-0`; if you add
+  wrappers, keep `min-h-0`/`flex-1` intact and avoid `min-h-dvh` on ancestors.
+- **Vercel preview looks different from `npm run dev`** — always validate with
+  `npm run build && npm start` at the same viewport, then redeploy with the build cache
+  cleared and a hard refresh.
+- **Native module error on a copied tree** — run `npm run fix:native` (or `npm ci` on each
+  machine). Do not copy `node_modules` or `.next` between Windows and Linux.
+- **Audio is silent on first launch** — browsers require a gesture; click Play, Launch or the
+  mute button once. The SFX toggle persists per commander.
 
 ```
 app/                     Next.js routes (briefing, game, failures, about)

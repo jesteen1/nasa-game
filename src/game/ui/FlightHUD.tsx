@@ -172,7 +172,8 @@ export default function FlightHUD({
       </div>
 
       {/* Bottom row -------------------------------------------------------- */}
-      <div className="flex items-end justify-between gap-2">
+      <div className="flex items-end justify-between gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+
         <div className="pointer-events-auto hidden w-[min(430px,42vw)] flex-col gap-1.5 lg:flex">
           <div className="hud-panel px-3 py-2">
             <div className="mb-1 flex items-center justify-between">
