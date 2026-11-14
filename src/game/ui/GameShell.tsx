@@ -1,12 +1,14 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import { getVehicle, VEHICLES } from "../data/vehicles";
 import LaunchScene from "../render/LaunchScene";
 import { computeStats } from "../sim/vehicle";
 import type { SimEngine } from "../sim/engine";
-import { rehydrateGame, useGame } from "../store/game";
+import { useGame } from "../store/game";
 import FlightScreen from "./FlightScreen";
 import ResultModal from "./ResultModal";
 import TelemetryPanel from "./TelemetryPanel";
@@ -145,13 +147,34 @@ export default function GameShell() {
   const screen = useGame((s) => s.screen);
   const tier = useGame((s) => s.tier);
   const unlocked = useGame((s) => s.unlocked);
+  const playerName = useGame((s) => s.playerName);
+  const activeProfile = useGame((s) => s.activeProfile);
+  const bootstrapped = useGame((s) => s.bootstrapped);
+  const bootstrap = useGame((s) => s.bootstrap);
   const runId = useGame((s) => s.runId);
+  const router = useRouter();
   const previewRef = useRef<SimEngine | null>(null);
   const vehicle = getVehicle(tier);
 
   useEffect(() => {
-    rehydrateGame();
-  }, []);
+    bootstrap();
+  }, [bootstrap]);
+
+  useEffect(() => {
+    if (bootstrapped && !activeProfile) router.replace("/");
+  }, [bootstrapped, activeProfile, router]);
+
+  if (!bootstrapped) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-[var(--navy)]">
+        <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--muted)]">
+          Loading mission control…
+        </p>
+      </div>
+    );
+  }
+
+  if (!activeProfile) return null;
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--navy)] text-[var(--ink)]">
@@ -176,12 +199,22 @@ export default function GameShell() {
           </div>
         </div>
 
-        <div className="hidden items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] sm:flex">
-          <span className="inline-flex items-center gap-1.5">
+        <div className="ml-auto order-2 flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] sm:order-none sm:ml-0 sm:gap-3">
+          <Link
+            href="/"
+            title="Mission briefing — change callsign"
+            className="flex items-center gap-1.5 rounded-sm border border-[var(--line)] px-2 py-1 transition hover:border-[rgba(0,229,255,0.45)] hover:text-[var(--cyan)]"
+          >
+            <span className="text-[8px] tracking-[0.16em] text-[var(--muted)]">Cmdr</span>
+            <span className="max-w-[92px] truncate text-[var(--ink)]">
+              {playerName || "Guest"}
+            </span>
+          </Link>
+          <span className="hidden items-center gap-1.5 sm:inline-flex">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--cyan)] shadow-[0_0_6px_var(--cyan)]" />
             Save local
           </span>
-          <span>Unlocked {unlocked}/5</span>
+          <span className="hidden lg:inline">Unlocked {unlocked}/5</span>
         </div>
       </header>
 
