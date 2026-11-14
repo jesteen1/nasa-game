@@ -183,6 +183,94 @@ body {
   background: transparent;
 }
 
+/* 2D launch vehicle illustration ----------------------------------------- */
+
+.rocket-craft {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  width: 112px;
+  margin-left: -56px;
+  transform-origin: 50% 100%;
+  animation: rocket-idle 3.8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.rocket-craft svg {
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.45));
+}
+
+.pad-launch .rocket-craft {
+  bottom: 34px;
+  width: 148px;
+  margin-left: -74px;
+}
+
+@media (min-width: 640px) {
+  .pad-launch .rocket-craft {
+    width: 188px;
+    margin-left: -94px;
+  }
+}
+
+.rocket-flame {
+  transform-origin: 110px 396px;
+  animation: rocket-flame 0.16s steps(2, end) infinite alternate;
+}
+
+.rocket-craft.is-launching {
+  animation: rocket-lift 5.4s cubic-bezier(0.45, 0.02, 0.55, 0.98) forwards;
+}
+
+.rocket-craft.is-launching .rocket-flame {
+  animation-duration: 0.08s;
+}
+
+.rocket-craft.is-away {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes rocket-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes rocket-flame {
+  from {
+    transform: scaleY(0.82) scaleX(0.94);
+    opacity: 0.85;
+  }
+  to {
+    transform: scaleY(1.08) scaleX(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes rocket-lift {
+  0% {
+    transform: translateY(0);
+  }
+  6% {
+    transform: translateY(5px);
+  }
+  12% {
+    transform: translateY(-10px);
+  }
+  45% {
+    transform: translateY(-170px);
+  }
+  100% {
+    transform: translateY(-420px);
+    opacity: 0;
+  }
+}
+
 /* Launch sequence FX ------------------------------------------------------ */
 
 .fx-ring {
@@ -356,5 +444,9 @@ body {
   .fx-failure {
     animation: none !important;
     opacity: 0 !important;
+  }
+  .rocket-craft,
+  .rocket-flame {
+    animation: none !important;
   }
 }

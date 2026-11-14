@@ -156,6 +156,7 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
                           part={option}
                           selected={option.id === build[slot]}
                           onSelect={() => {
+                            sfx.unlock();
                             setSlot(slot, option.id);
                             setOpenSlot(null);
                           }}

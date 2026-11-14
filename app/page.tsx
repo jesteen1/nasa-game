@@ -6,6 +6,8 @@ import type { FormEvent, ReactNode } from "react";
 import { sfx } from "@/src/game/audio/sfx";
 import { FAILURE_GUIDE } from "@/src/game/data/failureGuide";
 import { useGame } from "@/src/game/store/game";
+import RocketArt from "@/src/game/ui/RocketArt";
+import type { RocketArtMode } from "@/src/game/ui/RocketArt";
 import SoundToggle from "@/src/game/ui/SoundToggle";
 
 const SLOTS = [
@@ -37,6 +39,14 @@ const PHASES = [
   ["ASCENT", "Upper stage", "Pitch over and build horizontal velocity."],
   ["INSERT", "SECO", "Upper stage cuts off. You now need orbital velocity."],
   ["DEPLOY", "Payload", "Press D once SECO is confirmed and the target velocity is reached."],
+];
+
+const PAD_SMOKE = [
+  { left: 44, size: 96, delay: 0 },
+  { left: 50, size: 128, delay: 0.18 },
+  { left: 56, size: 104, delay: 0.36 },
+  { left: 39, size: 76, delay: 0.5 },
+  { left: 62, size: 70, delay: 0.62 },
 ];
 
 function Section({
@@ -76,11 +86,34 @@ export default function Home() {
   const deleteProfile = useGame((s) => s.deleteProfile);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [launchPhase, setLaunchPhase] = useState<RocketArtMode>("launching");
+  const [launchKey, setLaunchKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bootstrap();
   }, [bootstrap]);
+
+  useEffect(() => {
+    if (launchPhase === "launching") {
+      const timer = window.setTimeout(() => setLaunchPhase("away"), 5500);
+      return () => window.clearTimeout(timer);
+    }
+    if (launchPhase === "away") {
+      const timer = window.setTimeout(() => {
+        setLaunchKey((key) => key + 1);
+        setLaunchPhase("launching");
+      }, 1800);
+      return () => window.clearTimeout(timer);
+    }
+  }, [launchPhase, launchKey]);
+
+  const replayLaunch = () => {
+    sfx.unlock();
+    sfx.playCue("liftoff");
+    setLaunchKey((key) => key + 1);
+    setLaunchPhase("launching");
+  };
 
   const canPlay = bootstrapped && Boolean(activeProfile);
   const focusName = () => {
@@ -186,6 +219,64 @@ export default function Home() {
                   3 · Launch
                 </li>
               </ul>
+
+              <div className="relative mt-5 h-64 overflow-hidden rounded-md border border-[var(--line)] bg-[linear-gradient(180deg,#04070f_0%,#0a1626_55%,#123152_100%)] sm:h-72">
+                <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(142,163,191,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(142,163,191,0.2)_1px,transparent_1px)] [background-size:30px_30px]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_100%,rgba(0,229,255,0.14),transparent_70%)]" />
+
+                <div className="absolute inset-x-0 bottom-6 h-px bg-[rgba(142,163,191,0.25)]" />
+                <div className="absolute bottom-6 left-1/2 h-2 w-44 -translate-x-1/2 rounded-sm bg-[#3e5470]" />
+                <div className="absolute bottom-6 left-[calc(50%-88px)] h-32 w-1.5 bg-[#2a3a50]" />
+                <div className="absolute bottom-16 left-[calc(50%-98px)] h-1 w-11 bg-[#2a3a50]" />
+                <div className="absolute bottom-28 left-[calc(50%-98px)] h-1 w-11 bg-[#2a3a50]" />
+
+                {launchPhase === "launching" ? (
+                  <div className="absolute inset-x-0 bottom-6 h-44">
+                    {PAD_SMOKE.map((puff, index) => (
+                      <span
+                        key={`${launchKey}-${index}`}
+                        className="fx-smoke"
+                        style={{
+                          left: `${puff.left}%`,
+                          width: `${puff.size}px`,
+                          height: `${puff.size}px`,
+                          animationDelay: `${puff.delay}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+
+                <RocketArt key={launchKey} mode={launchPhase} />
+
+                <div className="absolute left-3 top-3 font-mono text-[8px] uppercase tracking-[0.18em] text-[#c9d8ea]">
+                  Pad 39A · vehicle RS-01
+                </div>
+                <div
+                  className={`absolute right-3 top-3 rounded-sm border px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] ${
+                    launchPhase === "launching"
+                      ? "border-[rgba(255,179,0,0.5)] text-[var(--amber)]"
+                      : "border-[var(--line)] text-[var(--muted)]"
+                  }`}
+                >
+                  {launchPhase === "launching" ? "Liftoff" : "Pad reset"}
+                </div>
+
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2.5">
+                  <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                    {launchPhase === "launching"
+                      ? "T+00:00:03 · nominal"
+                      : "Pad reset · next launch in 2 s"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={replayLaunch}
+                    className="pointer-events-auto rounded-sm border border-[rgba(0,229,255,0.45)] bg-[rgba(0,229,255,0.08)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--cyan)] transition hover:bg-[rgba(0,229,255,0.16)]"
+                  >
+                    Replay launch
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="rounded-md border border-[var(--line)] bg-[rgba(4,9,18,0.7)] p-4">

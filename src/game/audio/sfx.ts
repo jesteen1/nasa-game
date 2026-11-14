@@ -18,6 +18,7 @@ export type SfxCue =
   | "fairing"
   | "deploy"
   | "maxq"
+  | "warning"
   | "success"
   | "failure"
   | "abort";
@@ -105,6 +106,10 @@ class SfxEngine {
         break;
       case "maxq":
         this.noiseHit(0.65, 0.16, 160, 1100, "bandpass");
+        break;
+      case "warning":
+        this.blip(720, 0.13, "square", 0.09);
+        this.blip(520, 0.18, "square", 0.09, undefined, 0.17);
         break;
       case "success":
         [523, 659, 784, 1046].forEach((freq, i) =>

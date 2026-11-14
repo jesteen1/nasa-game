@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { sfx } from "../audio/sfx";
 import type { Vehicle, VehicleStats } from "../types";
 import { fmtInt, fmtKm, fmtMass, fmtSpeed } from "./format";
 
@@ -54,6 +56,21 @@ function twrTone(twr: number): "good" | "warn" | "bad" {
 export default function TelemetryPanel({ vehicle, stats }: Props) {
   const margin = stats.deltaV - vehicle.target.deltaV;
   const warnings = stats.warnings;
+  const seenWarnings = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (warnings.length === 0) {
+      seenWarnings.current.clear();
+      return;
+    }
+    let added = false;
+    for (const warning of warnings) {
+      if (seenWarnings.current.has(warning.id)) continue;
+      seenWarnings.current.add(warning.id);
+      added = true;
+    }
+    if (added) sfx.playCue("warning");
+  }, [warnings]);
 
   return (
     <div className="flex flex-col gap-3">

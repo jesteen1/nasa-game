@@ -10,6 +10,7 @@ import { useGame } from "../store/game";
 import type { SimEvent, SimSnapshot, TelemetrySample, Vehicle } from "../types";
 import FlightHUD from "./FlightHUD";
 import LaunchFX from "./LaunchFX";
+import PadLaunch from "./PadLaunch";
 
 const FIXED_STEP = 1 / 60;
 const HUD_INTERVAL = 100;
@@ -60,6 +61,7 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
     let finishTimer = 0;
     let lastCount: number | null = null;
     const seenEvents = new Set<string>();
+    const seenWarnings = new Set<string>();
 
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
@@ -113,6 +115,13 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
           seenEvents.add(key);
           const cue = cueForEvent(event);
           if (cue) sfx.playCue(cue);
+        }
+
+        // Warning cues ----------------------------------------------------
+        for (const warning of current.warnings) {
+          if (seenWarnings.has(warning.id)) continue;
+          seenWarnings.add(warning.id);
+          sfx.playCue("warning");
         }
 
         if (
@@ -186,6 +195,7 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
     <div className="relative min-h-0 flex-1 overflow-hidden">
       <LaunchScene engineRef={engineRef} vehicle={vehicle} build={build} />
       <LaunchFX snap={snap} />
+      <PadLaunch snap={snap} />
       {snap ? (
         <FlightHUD
           snap={snap}
@@ -196,19 +206,6 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
           onThrottle={onThrottle}
           onAction={onAction}
         />
-      ) : null}
-      {snap?.status === "countdown" ? (
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
-          <div className="font-mono text-[10px] uppercase tracking-[0.5em] text-[var(--amber)]">
-            Terminal count
-          </div>
-          <div className="font-mono text-6xl font-semibold text-white/90 drop-shadow-[0_0_20px_rgba(255,179,0,0.35)] sm:text-7xl">
-            T−{Math.max(0, Math.ceil(-snap.t))}
-          </div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.24em] text-[var(--muted)]">
-            All systems nominal · throttle {Math.round(snap.throttle * 100)}%
-          </div>
-        </div>
       ) : null}
     </div>
   );

@@ -115,7 +115,10 @@ The About link is in the briefing header, the failure-guide header and the game 
 All audio is synthesised at runtime with the Web Audio API — no asset files.
 
 - **Cues:** countdown beeps, ignition, liftoff, MECO/staging, upper-stage ignition,
-  Max Q, fairing jettison, payload deploy, mission success, failure and abort.
+  Max Q, fairing jettison, payload deploy, mission success, failure, abort and a two-beep
+  **warning alert**.
+- **Warning alert:** fires once for each new preflight warning in the analysis panel and each
+  new in-flight warning (Max Q build-up, MECO, fairing-ready, etc.).
 - **Engine rumble:** looping brown noise plus a sub-oscillator; gain and brightness follow
   throttle, and it stops at MECO, SECO, failure or unmount.
 - **Mute:** the header speaker button on `/` and `/game` toggles SFX; the preference is
@@ -123,10 +126,25 @@ All audio is synthesised at runtime with the Web Audio API — no asset files.
 - **Gesture-safe:** the `AudioContext` is created/resumed from Play, Launch or the mute
   button; the first pointer/key press in flight also unlocks it.
 
+The briefing hero also has a detailed **2D SVG rocket** (`ui/RocketArt.tsx`) on a launch pad:
+it hovers with a flickering exhaust, auto-lifts off on page load with smoke, and a
+**Replay launch** button restarts the animation. The same art powers the in-flight
+countdown overlay (`ui/PadLaunch.tsx`): the 2D rocket holds on the pad through T−10, lifts
+at T−0, then cross-fades into the three.js ascent. Everything is vector + CSS — no image
+assets required.
+
 The launch view also has a centred animation overlay (`LaunchFX`): pulsing countdown rings,
 an ignition flash, a `LIFTOFF` banner, exhaust smoke puffs and ascent speed streaks, plus a
 camera shake during ignition and explosions. It is disabled under
 `prefers-reduced-motion: reduce`.
+
+## Presentation deck
+
+`docs/rocket-simulator-overview.pptx` — 15-slide, 16:9 app overview (problem, loop, VAB,
+flight, failures, screens, persistence, audio, stack, quality, challenges, roadmap, team,
+thank-you). `docs/rocket-simulator-overview.md` is the editable slide-by-slide outline.
+Slide artwork is in `docs/assets/` (rasterised from the in-repo SVGs). Team portraits are
+placeholders.
 
 ## Project layout
 
@@ -138,5 +156,6 @@ src/game/sim/            Atmosphere, vehicle analysis, failures, flight integrat
 src/game/store/game.ts   zustand store, per-user profiles and persistence
 src/game/audio/sfx.ts    procedural Web Audio cues + engine rumble
 src/game/render/         three.js orthographic scene and procedural sprites
-src/game/ui/             VAB, telemetry, flight HUD, launch FX, result modal
+src/game/ui/             VAB, telemetry, flight HUD, launch FX, 2D rocket, result modal
+docs/                   PPTX app overview + editable outline + slide assets
 ```
