@@ -1,4 +1,4 @@
-import type { Vehicle } from "../types";
+import type { BuildConfig, Vehicle } from "../types";
 
 export const VEHICLES: Vehicle[] = [
   {
@@ -228,6 +228,21 @@ export const VEHICLES: Vehicle[] = [
 
 export function getVehicle(tier: number): Vehicle {
   return VEHICLES.find((v) => v.tier === tier) ?? VEHICLES[0];
+}
+
+export function emptyBuild(vehicle: Vehicle): BuildConfig {
+  return {
+    s1Engine: "none_engine",
+    s1Tank: "none_tank",
+    boosters: "none_booster",
+    fins: "none_fins",
+    interstage: vehicle.stages === 1 ? "interstage_none" : "none_interstage",
+    s2Engine: "none_engine",
+    s2Tank: "none_tank",
+    ullage: "none_ullage",
+    fairing: "none_fairing",
+    avionics: "none_avionics",
+  };
 }
 
 export const MAX_TIER = VEHICLES.length;

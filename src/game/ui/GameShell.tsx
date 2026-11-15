@@ -144,7 +144,7 @@ function VabScreen({ previewRef }: { previewRef: MutableRefObject<SimEngine | nu
   );
 }
 
-export default function GameShell() {
+export default function   GameShell() {
   const screen = useGame((s) => s.screen);
   const tier = useGame((s) => s.tier);
   const unlocked = useGame((s) => s.unlocked);

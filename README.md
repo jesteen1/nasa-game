@@ -155,6 +155,7 @@ camera shake during ignition and explosions. It is disabled under
 `docs/rocket-simulator-overview.pptx` — 15-slide, 16:9 app overview (problem, loop, VAB,
 flight, failures, screens, persistence, audio, stack, quality, challenges, roadmap, team,
 thank-you). `docs/rocket-simulator-overview.md` is the editable slide-by-slide outline.
+`docs/rocket-simulator-overview.pdf` is a 14-page printable app overview & features.
 Slide artwork is in `docs/assets/` (rasterised from the in-repo SVGs). Team portraits are
 placeholders.
 

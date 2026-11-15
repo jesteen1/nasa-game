@@ -2069,7 +2069,7 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
 
       {/* Interactive VAB Construction Helper Controls */}
       {isVab ? (
-        <div className="pointer-events-none absolute inset-x-3 top-14 flex items-center justify-between gap-2">
+        <div className="pointer-events-none absolute inset-x-3 top-21  flex items-center justify-between gap-2">
           <div className="rounded border border-[var(--line)] bg-[rgba(7,12,24,0.82)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
             {hoveredSlot
               ? `Click to cycle ${SLOT_LABEL[hoveredSlot]} · Right-click to clear`

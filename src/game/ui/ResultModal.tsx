@@ -112,40 +112,24 @@ export default function ResultModal() {
         </div>
 
         <footer className="flex flex-col gap-2 border-t border-[var(--line)] px-5 py-4 sm:flex-row">
-          {success && canAdvance ? (
-            <button
-              type="button"
-              onClick={() => {
+          <button
+            type="button"
+            onClick={() => {
+              if (success && canAdvance) {
                 setTier(nextTier);
-                launch();
-              }}
-              className="flex-1 rounded-md bg-[var(--cyan)] px-3 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#001014] transition hover:bg-white"
-            >
-              Next mission — T{nextTier}
-            </button>
-          ) : null}
-          {!success ? (
-            <button
-              type="button"
-              onClick={backToVab}
-              className="flex-1 rounded-md bg-[var(--cyan)] px-3 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#001014] transition hover:bg-white"
-            >
-              Reconfigure vehicle
-            </button>
-          ) : null}
+              }
+              backToVab();
+            }}
+            className="flex-1 rounded-md bg-[var(--cyan)] px-3 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#001014] transition hover:bg-white"
+          >
+            {success && canAdvance ? `Next mission — T${nextTier}` : `Next mission — T${result.tier}`}
+          </button>
           <button
             type="button"
             onClick={launch}
             className="flex-1 rounded-md border border-[var(--line)] px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--ink)] transition hover:border-[var(--cyan)] hover:text-[var(--cyan)]"
           >
             Re-fly this build
-          </button>
-          <button
-            type="button"
-            onClick={backToVab}
-            className="rounded-md border border-[var(--line)] px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)] transition hover:border-[var(--ink)] hover:text-[var(--ink)]"
-          >
-            VAB
           </button>
         </footer>
       </div>

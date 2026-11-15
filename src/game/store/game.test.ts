@@ -102,8 +102,19 @@ describe("commander profiles", () => {
     expect(store().soundOn).toBe(false);
   });
 
-  it("blocks launch while the vehicle is incomplete", () => {
+  it("starts with an empty assembly unit and blocks launch until all required parts are selected", () => {
     store().createProfile("Armstrong");
+    expect(store().build.s1Engine).toBe("none_engine");
+    expect(store().build.s1Tank).toBe("none_tank");
+    expect(store().build.fairing).toBe("none_fairing");
+    expect(store().build.avionics).toBe("none_avionics");
+    expect(store().launch()).toBe(false);
+    expect(store().screen).toBe("vab");
+
+    store().setSlot("s1Engine", "eng_htpb_solid");
+    store().setSlot("s1Tank", "tank_t1_solid");
+    store().setSlot("fairing", "fairing_t1");
+    store().setSlot("avionics", "avionics_light");
     expect(store().launch()).toBe(true);
     expect(store().screen).toBe("flight");
 
@@ -111,9 +122,49 @@ describe("commander profiles", () => {
     store().setSlot("s1Engine", "none_engine");
     expect(store().launch()).toBe(false);
     expect(store().screen).toBe("vab");
+  });
 
-    store().setSlot("s1Engine", "eng_htpb_solid");
-    expect(store().launch()).toBe(true);
-    expect(store().screen).toBe("flight");
+  it("advances to the next tier on success and stays on the same tier on failure when returning to VAB", () => {
+    store().createProfile("Armstrong");
+    store().finish({
+      tier: 1,
+      vehicleName: "Ares-I Sounding",
+      success: false,
+      score: 0,
+      timeS: 10,
+      maxQ: 2,
+      maxG: 1,
+      deltaVSpent: 100,
+      failure: null,
+    });
+    expect(store().screen).toBe("result");
+    expect(store().unlocked).toBe(1);
+    expect(store().tier).toBe(1);
+
+    // Failed mission -> backToVab stays on tier 1
+    store().backToVab();
+    expect(store().screen).toBe("vab");
+    expect(store().tier).toBe(1);
+
+    // Passed mission -> unlocks tier 2; advancing sets tier 2 with empty build and brings to VAB
+    store().finish({
+      tier: 1,
+      vehicleName: "Ares-I Sounding",
+      success: true,
+      score: 950,
+      timeS: 95,
+      maxQ: 20,
+      maxG: 3,
+      deltaVSpent: 2100,
+      failure: null,
+    });
+    expect(store().screen).toBe("result");
+    expect(store().unlocked).toBe(2);
+
+    store().setTier(2);
+    store().backToVab();
+    expect(store().screen).toBe("vab");
+    expect(store().tier).toBe(2);
+    expect(store().build.s1Engine).toBe("none_engine");
   });
 });

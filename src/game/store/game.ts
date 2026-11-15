@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { getVehicle, MAX_TIER } from "../data/vehicles";
+import { emptyBuild, getVehicle, MAX_TIER } from "../data/vehicles";
 import { missingSlots } from "../sim/validate";
 import type { BuildConfig, MissionResult, SlotId } from "../types";
 
@@ -144,7 +144,7 @@ function freshState() {
     unlocked: 1,
     playerName: "",
     soundOn: true,
-    build: { ...getVehicle(1).defaults },
+    build: emptyBuild(getVehicle(1)),
     best: {} as Record<string, number>,
     history: [] as HistoryEntry[],
     result: null,
@@ -162,13 +162,13 @@ export const useGame = create<GameState>()(
 
       setTier: (tier) => {
         if (tier < 1 || tier > get().unlocked) return;
-        set({ tier, build: { ...getVehicle(tier).defaults }, result: null });
+        set({ tier, build: emptyBuild(getVehicle(tier)), result: null });
       },
 
       setSlot: (slot, partId) =>
         set((state) => ({ build: { ...state.build, [slot]: partId } })),
 
-      resetBuild: () => set({ build: { ...getVehicle(get().tier).defaults } }),
+      resetBuild: () => set({ build: emptyBuild(getVehicle(get().tier)) }),
 
       toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),
 

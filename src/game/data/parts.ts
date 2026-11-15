@@ -107,6 +107,17 @@ export const PARTS: Part[] = [
     description: "Liquid propellant in the upper stage will float in zero-G.",
     tint: "#3a4d68",
   }),
+  part({
+    id: "none_avionics",
+    name: "Empty Avionics Bay",
+    short: "EMPTY",
+    category: "avionics",
+    massKg: 0,
+    heightM: 0,
+    widthM: 0,
+    description: "No flight computer or guidance ring installed — launch is locked.",
+    tint: "#3a4d68",
+  }),
 
   // ── Engines ───────────────────────────────────────────────────────────────
   part({

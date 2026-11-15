@@ -7,6 +7,7 @@ import { useGame } from "../store/game";
 import { missingSlots } from "../sim/validate";
 import type { Part, SlotId, Vehicle } from "../types";
 import { fmtInt, fmtMass } from "./format";
+import PartIcon, { partBadges } from "./PartIcon";
 
 const SLOT_ORDER: SlotId[] = [
   "s1Engine",
@@ -54,30 +55,62 @@ function PartOption({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const isEmpty = part.id.startsWith("none_") || part.id === "interstage_none";
+  const badges = partBadges(part);
   return (
     <button
       type="button"
       onClick={onSelect}
-      className={`group w-full rounded-md border px-2.5 py-2 text-left transition ${
+      className={`group flex w-full items-start gap-2.5 rounded-md border px-2.5 py-2 text-left transition ${
         selected
           ? "border-[var(--cyan)] bg-[rgba(0,229,255,0.08)]"
           : "border-[var(--line)] bg-[rgba(8,16,30,0.5)] hover:border-[rgba(0,229,255,0.45)] hover:bg-[rgba(0,229,255,0.04)]"
       }`}
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-[11px] font-medium text-[var(--ink)]">{part.name}</span>
-        <span
-          className={`shrink-0 font-mono text-[9px] uppercase tracking-[0.1em] ${
-            selected ? "text-[var(--cyan)]" : "text-[var(--muted)]"
-          }`}
-        >
-          {selected ? "installed" : part.short}
-        </span>
-      </div>
-      <div className="mt-0.5 truncate font-mono text-[9px] text-[var(--muted)]">{partSummary(part)}</div>
-      <div className="mt-1 hidden text-[10px] leading-snug text-[var(--muted)] group-hover:block">
-        {part.description}
-        {part.tradeoff ? ` — ${part.tradeoff}` : ""}
+      <span
+        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded border transition ${
+          selected
+            ? "border-[rgba(0,229,255,0.55)] bg-[rgba(0,229,255,0.12)]"
+            : isEmpty
+              ? "border-dashed border-[var(--line)] bg-[rgba(8,16,30,0.45)]"
+              : "border-[var(--line)] bg-[rgba(12,24,44,0.75)] group-hover:border-[rgba(0,229,255,0.4)]"
+        }`}
+      >
+        <PartIcon part={part} size={22} />
+      </span>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate text-[11px] font-medium text-[var(--ink)]">{part.name}</span>
+          <span
+            className={`shrink-0 font-mono text-[9px] uppercase tracking-[0.1em] ${
+              selected ? "text-[var(--cyan)]" : "text-[var(--muted)]"
+            }`}
+          >
+            {selected ? "installed" : part.short}
+          </span>
+        </div>
+        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 font-mono text-[9px] text-[var(--muted)]">
+          <span className="truncate">{partSummary(part)}</span>
+          {badges.map((badge) => (
+            <span
+              key={badge.label}
+              className={`rounded px-1 py-0.2 text-[8px] uppercase tracking-[0.08em] ${
+                badge.tone === "cyan"
+                  ? "border border-[rgba(0,229,255,0.35)] bg-[rgba(0,229,255,0.1)] text-[var(--cyan)]"
+                  : badge.tone === "amber"
+                    ? "border border-[rgba(255,179,0,0.35)] bg-[rgba(255,179,0,0.1)] text-[var(--amber)]"
+                    : "border border-[var(--line)] bg-[rgba(142,163,191,0.08)] text-[var(--muted)]"
+              }`}
+            >
+              {badge.label}
+            </span>
+          ))}
+        </div>
+        <div className="mt-1 hidden text-[10px] leading-snug text-[var(--muted)] group-hover:block">
+          {part.description}
+          {part.tradeoff ? ` — ${part.tradeoff}` : ""}
+        </div>
       </div>
     </button>
   );
@@ -116,7 +149,7 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
           }}
           className="rounded border border-[var(--line)] px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[var(--amber)] hover:text-[var(--amber)]"
         >
-          Reset to stock
+          Clear assembly
         </button>
       </header>
 
@@ -126,22 +159,50 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
             const disabled = slotDisabled(slot, vehicle);
             const part = getPart(build[slot]);
             const open = openSlot === slot;
+            const isMissingRequired = missing.includes(slot);
+            const isEmpty = part.id.startsWith("none_") || part.id === "interstage_none";
             return (
               <div key={slot} className="rounded-md border border-[var(--line)] bg-[rgba(8,16,30,0.35)]">
                 <button
                   type="button"
                   disabled={disabled}
                   onClick={() => setOpenSlot(open ? null : slot)}
-                  className={`flex w-full items-center gap-2 px-2.5 py-2 text-left transition ${
+                  className={`flex w-full items-center gap-2.5 px-2.5 py-2 text-left transition ${
                     disabled ? "cursor-not-allowed opacity-35" : "hover:bg-[rgba(0,229,255,0.04)]"
                   }`}
                 >
-                  <span className="w-24 shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">
-                    {SLOT_LABEL[slot]}
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded border transition ${
+                      disabled
+                        ? "border-[var(--line)] bg-[rgba(8,16,30,0.3)]"
+                        : isMissingRequired
+                          ? "border-[rgba(255,179,0,0.45)] bg-[rgba(255,179,0,0.1)]"
+                          : !isEmpty
+                            ? "border-[rgba(0,229,255,0.45)] bg-[rgba(0,229,255,0.1)]"
+                            : "border-dashed border-[var(--line)] bg-[rgba(8,16,30,0.45)]"
+                    }`}
+                  >
+                    <PartIcon part={disabled ? undefined : part} slot={slot} size={18} />
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-[11px] text-[var(--ink)]">
-                    {disabled ? "Not flown on this vehicle" : part.name}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="truncate font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">
+                        {SLOT_LABEL[slot]}
+                      </span>
+                      {!disabled && isMissingRequired ? (
+                        <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--amber)]">
+                          required
+                        </span>
+                      ) : !disabled && !isEmpty ? (
+                        <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--cyan)]">
+                          ready
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="truncate text-[11px] text-[var(--ink)]">
+                      {disabled ? "Not flown on this vehicle" : part.name}
+                    </div>
+                  </div>
                   <span
                     className={`shrink-0 font-mono text-[9px] transition ${
                       open ? "rotate-90 text-[var(--cyan)]" : "text-[var(--muted)]"

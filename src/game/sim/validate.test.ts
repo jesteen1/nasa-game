@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { VEHICLES, getVehicle } from "../data/vehicles";
-import { isVehicleComplete, missingSlots } from "./validate";
+import { emptyBuild, VEHICLES, getVehicle } from "../data/vehicles";
+import { isVehicleComplete, missingSlots, requiredSlotsFor } from "./validate";
 
 describe("vehicle completeness gate", () => {
+  it("starts empty builds with all required slots missing", () => {
+    for (const vehicle of VEHICLES) {
+      const empty = emptyBuild(vehicle);
+      expect(missingSlots(vehicle, empty), vehicle.name).toEqual(requiredSlotsFor(vehicle));
+      expect(isVehicleComplete(vehicle, empty)).toBe(false);
+    }
+  });
+
   it("accepts every stock build", () => {
     for (const vehicle of VEHICLES) {
       expect(missingSlots(vehicle, vehicle.defaults), vehicle.name).toEqual([]);
