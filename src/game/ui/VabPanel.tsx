@@ -158,7 +158,7 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
   const alignPanel = () => {
     const panel = panelRef.current;
     if (!panel || typeof window === "undefined") return;
-    if (!window.matchMedia("(max-width: 767px)").matches) return;
+    if (!window.matchMedia("(max-width: 1023px)").matches) return;
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -197,7 +197,7 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
         const target = event.target as HTMLElement;
         if (!target.closest("button") && !target.closest("input")) alignPanel();
       }}
-      className={`panel flex scroll-mt-2 flex-col transition-shadow md:h-full md:min-h-0 ${
+      className={`panel flex scroll-mt-2 flex-col transition-shadow lg:h-full lg:min-h-0 ${
         focused ? "ring-1 ring-[rgba(0,229,255,0.35)] md:ring-0" : ""
       }`}
     >
@@ -296,7 +296,7 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
         ) : null}
       </div>
 
-      <div className="px-2.5 py-2.5 md:min-h-0 md:flex-1 md:overflow-y-auto">
+      <div className="px-2.5 py-2.5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
         <div className="flex flex-col gap-1.5">
           {SLOT_ORDER.map((slot) => {
             const disabled = slotDisabled(slot, vehicle);
@@ -319,7 +319,7 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
                   disabled={disabled}
                   onClick={() => {
                     setOpenSlot(open ? null : slot);
-                    if (!open && window.matchMedia("(max-width: 767px)").matches) {
+                    if (!open && window.matchMedia("(max-width: 1023px)").matches) {
                       window.requestAnimationFrame(() => {
                         document
                           .getElementById(`slot-${slot}`)
@@ -375,7 +375,7 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
 
                 {open && !disabled ? (
                   <div className="border-t border-[var(--line)] p-1.5">
-                    <div className="grid max-h-[40vh] gap-1.5 overflow-y-auto md:max-h-[45vh]">
+                    <div className="grid max-h-[40vh] gap-1.5 overflow-y-auto lg:max-h-[45vh]">
                       {openOptions.length === 0 ? (
                         <p className="px-1 py-1.5 font-mono text-[9px] text-[var(--muted)]">
                           No parts match “{query.trim()}”.
