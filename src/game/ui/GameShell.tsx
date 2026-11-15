@@ -81,9 +81,9 @@ function VabScreen({ previewRef }: { previewRef: MutableRefObject<SimEngine | nu
   return (
     <section className="grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2.5 p-2.5">
       <div className="min-h-0 min-w-0 flex-col gap-2.5 overflow-y-auto md:grid md:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] md:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] md:overflow-hidden lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-1">
-        <section className="panel relative h-[220px] min-h-[220px] shrink-0 overflow-hidden md:col-start-1 md:row-span-2 md:h-full md:min-h-0 lg:col-start-1 lg:row-span-1 lg:min-h-[420px]">
+        <section className="panel relative h-[380px] min-h-[380px] shrink-0 overflow-hidden sm:h-[400px] sm:min-h-[400px] md:col-start-1 md:row-span-2 md:h-full md:min-h-0 lg:col-start-1 lg:row-span-1 lg:min-h-[420px]">
           <LaunchScene engineRef={previewRef} vehicle={vehicle} build={build} />
-          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-[rgba(3,7,15,0.92)] via-[rgba(3,7,15,0.55)] to-transparent p-2 pb-6 md:p-3 md:pb-8">
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 bg-gradient-to-b from-[rgba(3,7,15,0.92)] via-[rgba(3,7,15,0.55)] to-transparent p-2 pb-6 md:p-3 md:pb-8">
             <div className="min-w-0">
               <div className="font-mono text-[8px] uppercase tracking-[0.24em] text-[var(--cyan)]">
                 Rocket Simulator
@@ -99,7 +99,7 @@ function VabScreen({ previewRef }: { previewRef: MutableRefObject<SimEngine | nu
               VAB bay 01
             </span>
           </div>
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-[rgba(3,7,15,0.92)] via-[rgba(3,7,15,0.5)] to-transparent p-2 pt-8 md:p-3 md:pt-10">
+          <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 bg-gradient-to-t from-[rgba(3,7,15,0.92)] via-[rgba(3,7,15,0.5)] to-transparent p-2 pt-8 md:p-3 md:pt-10">
             <div className="min-w-0 font-mono text-[8px] leading-relaxed text-[#c9d8ea] md:text-[9px]">
               <div className="truncate">
                 STACK {stats.heightM.toFixed(1)} m · MASS {(stats.totalWetKg / 1000).toFixed(1)} t

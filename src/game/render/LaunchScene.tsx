@@ -750,6 +750,32 @@ function drawCloudCluster(ctx: CanvasRenderingContext2D, x: number, y: number, s
   ctx.restore();
 }
 
+/**
+ * Chrome-safe drawing zones for the VAB blueprint canvas. The panel overlays the
+ * canvas with a title block (top), a build-helper row and a stats bar (bottom), so
+ * the rocket, tower, scale and callouts must stay inside the uncovered middle on
+ * every viewport. Keeping this pure makes the mobile overlap rules testable.
+ */
+export function vabLayout(width: number, height: number) {
+  const compact = height < 420;
+  // The title block + build-helper row always occupy the first ~120 px of the panel.
+  const topSafe = height < 240 ? 84 : 120;
+  const bottomSafe = height < 240 ? 40 : compact ? 72 : 84;
+  const baseY = Math.round(height - bottomSafe);
+  // 10 callout rows need 21 px each; only draw the column when it comfortably fits.
+  const showCallouts = width >= 340 && height >= 460;
+  return {
+    compact,
+    topSafe,
+    bottomSafe,
+    baseY,
+    showCallouts,
+    centerX: Math.round(width * (showCallouts ? 0.36 : 0.5)),
+    labelStartY: topSafe + 4,
+    labelEndY: baseY - 12,
+  };
+}
+
 export default function LaunchScene({ engineRef, vehicle, build }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -936,9 +962,14 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
       }
       ctx.stroke();
 
-      const showCalloutColumn = width >= 340;
-      const centerX = showCalloutColumn ? Math.round(width * 0.36) : Math.round(width * 0.5);
-      const baseY = Math.round(height * 0.82);
+      const {
+        baseY,
+        centerX,
+        topSafe,
+        labelStartY,
+        labelEndY,
+        showCallouts: showCalloutColumn,
+      } = vabLayout(width, height);
 
       // 3. Left Elevation Reference Scale
       ctx.strokeStyle = "rgba(142, 163, 191, 0.25)";
@@ -947,7 +978,7 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
       ctx.textAlign = "left";
       for (let m = 0; m <= 125; m += 25) {
         const py = baseY - m * 2.4;
-        if (py < 52) break;
+        if (py < topSafe + 2) break;
         ctx.beginPath();
         ctx.moveTo(10, py);
         ctx.lineTo(22, py);
@@ -966,10 +997,11 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
       // 5. Strongback Support Tower with Truss Cross-Bracing
       const nodes = buildVisualStack(vehicle, build, null, true);
       const rawTotalH = nodes.reduce((acc, n) => acc + n.height, 0);
-      const maxAvailH = Math.max(180, baseY - 82);
+      // Never let the stack grow into the overlaid title / helper band.
+      const maxAvailH = Math.max(1, baseY - topSafe);
       const scale = Math.min(1, maxAvailH / Math.max(1, rawTotalH));
 
-      const towerH = Math.max(190, rawTotalH * scale + 18);
+      const towerH = Math.min(maxAvailH, Math.max(96, rawTotalH * scale + 18));
       const towerX = centerX - 66;
       ctx.strokeStyle = "rgba(148, 163, 184, 0.26)";
       ctx.lineWidth = 2.2;
@@ -1178,7 +1210,7 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
       if (showCalloutColumn) {
         const labelX = Math.round(width * 0.56);
         const labelW = Math.max(120, width - labelX - 10);
-        let lastLabelY = 58;
+        let lastLabelY = labelStartY;
 
         const callouts: { y: number; anchorX: number; text: string; slot: SlotId; empty: boolean }[] = [];
         placedBoxes.forEach((b) => {
@@ -1211,7 +1243,7 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
         });
 
         callouts.forEach((c) => {
-          const boxY = Math.max(lastLabelY, Math.min(baseY - 12, c.y));
+          const boxY = Math.max(lastLabelY, Math.min(labelEndY, c.y));
           lastLabelY = boxY + 21;
           const active = currentHoverSlot === c.slot;
 
@@ -2069,11 +2101,18 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
 
       {/* Interactive VAB Construction Helper Controls */}
       {isVab ? (
-        <div className="pointer-events-none absolute inset-x-3 top-21  flex items-center justify-between gap-2">
-          <div className="rounded border border-[var(--line)] bg-[rgba(7,12,24,0.82)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
-            {hoveredSlot
-              ? `Click to cycle ${SLOT_LABEL[hoveredSlot]} · Right-click to clear`
-              : `Click any rocket section to construct · ${stats.layout.length} modules`}
+        <div className="pointer-events-none absolute inset-x-2 top-[88px] z-[1] flex min-w-0 items-center justify-between gap-2 md:top-24">
+          <div className="min-w-0 truncate rounded border border-[var(--line)] bg-[rgba(7,12,24,0.82)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
+            {hoveredSlot ? (
+              <>Click to cycle {SLOT_LABEL[hoveredSlot]} · Right-click to clear</>
+            ) : (
+              <>
+                <span className="sm:hidden">Tap a section to build · {stats.layout.length} modules</span>
+                <span className="hidden sm:inline">
+                  Click any rocket section to construct · {stats.layout.length} modules
+                </span>
+              </>
+            )}
           </div>
           <button
             type="button"
@@ -2082,7 +2121,7 @@ export default function LaunchScene({ engineRef, vehicle, build }: Props) {
               sfx.playCue("click");
               setConstructTrigger((n) => n + 1);
             }}
-            className="pointer-events-auto rounded border border-[rgba(0,229,255,0.45)] bg-[rgba(0,229,255,0.1)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--cyan)] transition hover:bg-[rgba(0,229,255,0.2)]"
+            className="pointer-events-auto shrink-0 rounded border border-[rgba(0,229,255,0.45)] bg-[rgba(0,229,255,0.1)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--cyan)] transition hover:bg-[rgba(0,229,255,0.2)]"
           >
             Construct rocket
           </button>
