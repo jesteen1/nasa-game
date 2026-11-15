@@ -29,6 +29,18 @@ export interface PreflightPrediction {
   heightKm: number;
 }
 
+export const RISK_LABEL: Record<AssemblyRisk, string> = {
+  none: "CLEAR",
+  incomplete: "INCOMPLETE",
+  payload: "PAYLOAD RISK",
+  orbit: "ORBIT RISK",
+  pad: "PAD RISK",
+  control: "CONTROL RISK",
+  structure: "STRUCTURE RISK",
+  restart: "RESTART RISK",
+  heat: "HEAT RISK",
+};
+
 const RISK_BY_FAILURE: Record<string, AssemblyRisk> = {
   unstable_orbit: "payload",
   crash: "orbit",

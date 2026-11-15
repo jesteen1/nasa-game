@@ -96,7 +96,10 @@ export default function AssemblyCheck({
   const risky = prediction.risk !== "none" && prediction.risk !== "incomplete";
 
   return (
-    <section className={`panel border-l-2 px-3.5 py-3 ${meta.border}`}>
+    <section
+      id="assembly-check"
+      className={`panel scroll-mt-4 border-l-2 px-3.5 py-3 ${meta.border}`}
+    >
       <div className="flex items-center justify-between gap-2">
         <h2 className="panel-title">Assembly check</h2>
         <span

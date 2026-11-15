@@ -1,4 +1,4 @@
-import type { Part } from "../types";
+import type { Part, SlotId } from "../types";
 
 type PartInput = Omit<Part, "short" | "thrustSeaLevelKn" | "thrustVacuumKn" | "ispSeaLevel" | "ispVacuum" | "propellant" | "propellantKg" | "nozzleType" | "expansionRatio" | "gimbalRangeDeg" | "maxDynamicPressureKpa" | "cryoInsulated" | "ullageThrusters" | "structuralRatingKpa" | "finAreaM2" | "hammerhead" | "tiers" | "tradeoff" | "tint"> &
   Partial<Part>;
@@ -720,6 +720,19 @@ export const SLOT_CATEGORY: Record<string, Part["category"]> = {
   fairing: "fairing",
   avionics: "avionics",
 };
+
+export const SLOT_ORDER: SlotId[] = [
+  "s1Engine",
+  "s1Tank",
+  "boosters",
+  "fins",
+  "interstage",
+  "s2Engine",
+  "s2Tank",
+  "ullage",
+  "fairing",
+  "avionics",
+];
 
 export const SLOT_LABEL: Record<string, string> = {
   s1Engine: "Stage 1 Engine",
