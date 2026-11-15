@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { BUILD_STEPS, TEAM, TECH_STACK } from "@/src/game/data/about";
+import BrandMark from "@/src/game/ui/BrandMark";
 
 export const metadata: Metadata = {
   title: "About — Rocket Simulator",
@@ -14,9 +15,7 @@ export default function AboutPage() {
     <div className="flex min-h-dvh flex-col bg-[var(--navy)] text-[var(--ink)]">
       <header className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-[var(--line)] bg-[rgba(5,10,20,0.92)] px-3 py-2.5 backdrop-blur sm:px-5">
         <Link href="/" className="flex items-center gap-2" aria-label="Rocket Simulator home">
-          <span className="grid h-8 w-8 place-items-center rounded-sm border border-[var(--cyan)] bg-[rgba(0,229,255,0.08)] font-mono text-[11px] text-[var(--cyan)]">
-            RS
-          </span>
+          <BrandMark className="h-8 w-8 shrink-0" />
           <span className="leading-none">
             <span className="block font-mono text-[11px] font-semibold uppercase tracking-[0.24em]">
               Rocket Simulator
@@ -150,8 +149,8 @@ export default function AboutPage() {
                   <Image
                     src={member.image}
                     alt={`${member.name} — ${member.role}`}
-                    width={600}
-                    height={600}
+                    width={400}
+                    height={500}
                     unoptimized
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 220px"
                     className="h-full w-full object-cover"
@@ -171,8 +170,8 @@ export default function AboutPage() {
           </ul>
 
           <p className="font-mono text-[8px] uppercase leading-relaxed tracking-[0.1em] text-[var(--muted)]">
-            Portraits are placeholders. Drop the real photos into <code>public/team/</code> and
-            update names/roles in <code>src/game/data/about.ts</code>.
+            Crew portraits are original vector avatars. Replace{" "}
+            <code>public/team/member-01..05.svg</code> with photos when they are available.
           </p>
         </section>
 

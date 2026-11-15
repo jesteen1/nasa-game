@@ -10,6 +10,23 @@ describe("about page data", () => {
     expect(TEAM.every((member) => member.name && member.role && member.focus)).toBe(true);
   });
 
+  it("lists the real crew names and roles", () => {
+    expect(TEAM.map((member) => member.name)).toEqual([
+      "Jeorse Barnard",
+      "Karupusamy",
+      "Elango",
+      "Partha Sarathi",
+      "Jesteen",
+    ]);
+    expect(TEAM.map((member) => member.role)).toEqual([
+      "Physics",
+      "Testing Analyst",
+      "UI Designer",
+      "Canva Designer",
+      "Full Stack Developer",
+    ]);
+  });
+
   it("points every team photo at a file in public/", () => {
     for (const member of TEAM) {
       const file = join(process.cwd(), "public", member.image.replace(/^\//, ""));

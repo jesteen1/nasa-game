@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAILURE_GUIDE } from "@/src/game/data/failureGuide";
+import BrandMark from "@/src/game/ui/BrandMark";
 import FailureList from "@/src/game/ui/FailureList";
 
 export const metadata: Metadata = {
@@ -14,9 +15,7 @@ export default function FailuresPage() {
     <div className="flex min-h-dvh flex-col bg-[var(--navy)] text-[var(--ink)]">
       <header className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-[var(--line)] bg-[rgba(5,10,20,0.92)] px-3 py-2.5 backdrop-blur sm:px-5">
         <Link href="/" className="flex items-center gap-2" aria-label="Rocket Simulator home">
-          <span className="grid h-8 w-8 place-items-center rounded-sm border border-[var(--cyan)] bg-[rgba(0,229,255,0.08)] font-mono text-[11px] text-[var(--cyan)]">
-            RS
-          </span>
+          <BrandMark className="h-8 w-8 shrink-0" />
           <span className="leading-none">
             <span className="block font-mono text-[11px] font-semibold uppercase tracking-[0.24em]">
               Rocket Simulator

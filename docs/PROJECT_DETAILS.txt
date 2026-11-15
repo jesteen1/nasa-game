@@ -40,7 +40,7 @@ The project is a complete vertical slice:
 - A deterministic 60 Hz flight simulation and a 10 Hz telemetry HUD.
 - 12 failure modes with an in-app guide, post-flight debrief and clues.
 - Per-commander saves, mission history and best scores.
-- 93 automated tests; lint and production build clean.
+- 94 automated tests; lint and production build clean.
 
 The experience is deliberately arcade-sim: real relationships and NASA-derived
 reference values, but rounded and tuned so a player can learn the trade-offs in
@@ -385,7 +385,7 @@ Fidelity notes (stated openly):
 
 9. QUALITY AND TESTING
 ----------------------
-- 93 automated tests in 27 files, run with Vitest (npm test).
+- 94 automated tests in 27 files, run with Vitest (npm test).
 - Physics and balance: TWR/delta-v sanity, all stock builds clear, all five
   stock missions complete with the autopilot.
 - Failure engine: every rule fires under its condition and duplicates are
@@ -420,7 +420,7 @@ Limitations:
 - 2D simulation; no 3D trajectory, orbital inclination or atmospheric winds.
 - Vehicle masses, heights and some engine values are game-balanced.
 - Failure rules are simplified versions of real failure modes.
-- Team names, roles and portraits are placeholders.
+- Crew portraits are original illustrations; real photos can replace them.
 - No save export/import UI yet; history is stored but not shown as a panel.
 - Audio mix and animation timing still need a real-browser QA pass.
 
@@ -430,7 +430,7 @@ Roadmap:
   to strengthen the NASA data story.
 - Mission-control voice callouts.
 - Additional missions and payload types.
-- Replace team placeholders before submission.
+- Optional: replace the illustrated crew avatars with real photos before submission.
 
 12. HOW TO RUN AND DEMO SCRIPT
 ------------------------------
@@ -438,7 +438,7 @@ Requirements: Node 24+ and npm 11+.
 
   npm ci
   npm run dev      # http://localhost:3000
-  npm test         # 93 tests
+  npm test         # 94 tests
   npm run lint
   npm run build
   npm start
@@ -491,9 +491,16 @@ All links checked 2026-11-15.
 
 14. TEAM, LICENSING AND DISCLAIMER
 ----------------------------------
-Team: placeholder members are defined in src/game/data/about.ts and shown on
-/about. Replace names, roles and portraits before the global judging
-submission.
+Team: the five crew members are defined in src/game/data/about.ts and shown on
+/about with original illustrated human avatars in public/team/:
+
+  Jeorse Barnard  - Physics
+  Karupusamy      - Testing Analyst
+  Elango          - UI Designer
+  Partha Sarathi  - Canva Designer
+  Jesteen         - Full Stack Developer
+
+Real photos can replace the avatars without code changes.
 
 Licensing:
 - Project code is original work by the team.

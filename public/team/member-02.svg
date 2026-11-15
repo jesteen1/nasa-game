@@ -1,22 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Team member 02 placeholder">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Illustrated portrait of Karupusamy">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0b1424"/>
-      <stop offset="1" stop-color="#122a47"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#122a32"/>
+      <stop offset="1" stop-color="#070c18"/>
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="35%" r="50%">
-      <stop offset="0" stop-color="#00e5ff" stop-opacity="0.22"/>
+    <radialGradient id="glow" cx="50%" cy="32%" r="60%">
+      <stop offset="0" stop-color="#00e5ff" stop-opacity="0.20"/>
       <stop offset="1" stop-color="#00e5ff" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c07a4a"/>
+      <stop offset="1" stop-color="#96562b"/>
+    </linearGradient>
+    <linearGradient id="top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12495a"/>
+      <stop offset="1" stop-color="#082a36"/>
+    </linearGradient>
   </defs>
-  <rect width="600" height="600" fill="url(#bg)"/>
-  <rect width="600" height="600" fill="url(#glow)"/>
-  <g stroke="#00e5ff" stroke-opacity="0.18">
-    <path d="M0 150h600M0 300h600M0 450h600M150 0v600M300 0v600M450 0v600"/>
+
+  <rect width="400" height="500" fill="url(#bg)"/>
+  <rect width="400" height="500" fill="url(#glow)"/>
+  <g stroke="#00e5ff" stroke-opacity="0.07" fill="none">
+    <path d="M0 100h400M0 200h400M0 300h400M0 400h400M100 0v500M200 0v500M300 0v500"/>
   </g>
-  <circle cx="300" cy="238" r="96" fill="none" stroke="#00e5ff" stroke-opacity="0.55" stroke-width="3"/>
-  <circle cx="300" cy="214" r="54" fill="#00e5ff" fill-opacity="0.14"/>
-  <path d="M182 470c18-80 70-124 118-124s100 44 118 124" fill="#00e5ff" fill-opacity="0.08" stroke="#00e5ff" stroke-opacity="0.35" stroke-width="3"/>
-  <text x="300" y="548" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="28" fill="#8ea3bf" letter-spacing="8">TEAM 02</text>
-  <text x="300" y="578" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="14" fill="#00e5ff" fill-opacity="0.7" letter-spacing="4">PHOTO PLACEHOLDER</text>
+  <circle cx="200" cy="190" r="134" fill="none" stroke="#00e5ff" stroke-opacity="0.18" stroke-width="2"/>
+  <circle cx="200" cy="190" r="113" fill="#00e5ff" fill-opacity="0.035"/>
+
+  <path d="M176 250h48v52c0 14-11 24-24 24s-24-10-24-24z" fill="#7c431f"/>
+  <path d="M42 500c10-116 70-174 158-174s148 58 158 174z" fill="url(#top)"/>
+  <path d="M158 334l42 40 42-40 16 12-58 54-58-54z" fill="#0b3442"/>
+  <path d="M186 380v28M214 380v28" stroke="#7fd8ea" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="186" cy="412" r="3.5" fill="#7fd8ea"/>
+  <circle cx="214" cy="412" r="3.5" fill="#7fd8ea"/>
+
+  <ellipse cx="129" cy="196" rx="11" ry="17" fill="#a86438"/>
+  <ellipse cx="271" cy="196" rx="11" ry="17" fill="#a86438"/>
+  <ellipse cx="200" cy="184" rx="71" ry="85" fill="url(#skin)"/>
+
+  <path d="M128 178c-2-60 34-98 74-98 42 0 74 36 72 98-10-30-26-48-46-54-18-6-38-5-56 2-18 7-32 22-44 52z" fill="#1b1a20"/>
+  <path d="M150 142c20-20 54-28 82-16-20 2-38 8-56 20-12 8-20 18-26 28z" fill="#25232b"/>
+  <path d="M132 196c4 42 30 72 68 72s64-30 68-72c-8 26-20 42-34 50-10 6-22 8-34 8s-24-2-34-8c-14-8-26-24-34-50z" fill="#211d22"/>
+
+  <path d="M158 160c9-6 21-6 29-1M213 159c8-5 20-5 29 1" stroke="#241409" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="174" cy="180" rx="10" ry="7" fill="#f8f4ee"/>
+  <ellipse cx="226" cy="180" rx="10" ry="7" fill="#f8f4ee"/>
+  <circle cx="175" cy="181" r="4" fill="#241409"/>
+  <circle cx="227" cy="181" r="4" fill="#241409"/>
+  <path d="M200 186v20c0 5-5 8-10 6" stroke="#6b3a18" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M180 220c12 8 28 8 40 0" stroke="#3a2216" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <path d="M120 188c0-72 36-112 80-112s80 40 80 112" fill="none" stroke="#1b2733" stroke-width="10" stroke-linecap="round"/>
+  <rect x="106" y="176" width="24" height="46" rx="10" fill="#1b2733"/>
+  <rect x="270" y="176" width="24" height="46" rx="10" fill="#1b2733"/>
+  <path d="M124 218c12 20 30 30 50 32" fill="none" stroke="#1b2733" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="176" cy="250" r="7" fill="#00e5ff" fill-opacity="0.8"/>
+
+  <circle cx="300" cy="432" r="17" fill="#0b1424" stroke="#00e5ff" stroke-opacity="0.65" stroke-width="2"/>
+  <path d="M300 422l2.9 7.1 7.6.6-5.8 5 1.8 7.5-6.5-4-6.5 4 1.8-7.5-5.8-5 7.6-.6z" fill="#00e5ff"/>
 </svg>

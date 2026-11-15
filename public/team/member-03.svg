@@ -1,22 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Team member 03 placeholder">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Illustrated portrait of Elango">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0b1424"/>
-      <stop offset="1" stop-color="#122a47"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#102a3d"/>
+      <stop offset="1" stop-color="#070c18"/>
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="35%" r="50%">
-      <stop offset="0" stop-color="#00e5ff" stop-opacity="0.22"/>
+    <radialGradient id="glow" cx="50%" cy="32%" r="60%">
+      <stop offset="0" stop-color="#00e5ff" stop-opacity="0.24"/>
       <stop offset="1" stop-color="#00e5ff" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dfa06a"/>
+      <stop offset="1" stop-color="#b87a46"/>
+    </linearGradient>
+    <linearGradient id="hoodie" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f4a5e"/>
+      <stop offset="1" stop-color="#082733"/>
+    </linearGradient>
   </defs>
-  <rect width="600" height="600" fill="url(#bg)"/>
-  <rect width="600" height="600" fill="url(#glow)"/>
-  <g stroke="#00e5ff" stroke-opacity="0.18">
-    <path d="M0 150h600M0 300h600M0 450h600M150 0v600M300 0v600M450 0v600"/>
+
+  <rect width="400" height="500" fill="url(#bg)"/>
+  <rect width="400" height="500" fill="url(#glow)"/>
+  <g stroke="#00e5ff" stroke-opacity="0.07" fill="none">
+    <path d="M0 100h400M0 200h400M0 300h400M0 400h400M100 0v500M200 0v500M300 0v500"/>
   </g>
-  <circle cx="300" cy="238" r="96" fill="none" stroke="#00e5ff" stroke-opacity="0.55" stroke-width="3"/>
-  <circle cx="300" cy="214" r="54" fill="#00e5ff" fill-opacity="0.14"/>
-  <path d="M182 470c18-80 70-124 118-124s100 44 118 124" fill="#00e5ff" fill-opacity="0.08" stroke="#00e5ff" stroke-opacity="0.35" stroke-width="3"/>
-  <text x="300" y="548" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="28" fill="#8ea3bf" letter-spacing="8">TEAM 03</text>
-  <text x="300" y="578" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="14" fill="#00e5ff" fill-opacity="0.7" letter-spacing="4">PHOTO PLACEHOLDER</text>
+  <circle cx="200" cy="190" r="134" fill="none" stroke="#00e5ff" stroke-opacity="0.18" stroke-width="2"/>
+  <circle cx="200" cy="190" r="113" fill="#00e5ff" fill-opacity="0.035"/>
+
+  <path d="M176 250h48v52c0 14-11 24-24 24s-24-10-24-24z" fill="#9c6236"/>
+  <path d="M42 500c10-116 70-174 158-174s148 58 158 174z" fill="url(#hoodie)"/>
+  <path d="M120 330c12-32 44-50 80-50s68 18 80 50" fill="#0b3345"/>
+  <path d="M160 336l40 38 40-38 14 12-54 54-54-54z" fill="#0c3d4f"/>
+  <path d="M188 384v34M212 384v34" stroke="#9fe8ff" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="188" cy="422" r="3.5" fill="#9fe8ff"/>
+  <circle cx="212" cy="422" r="3.5" fill="#9fe8ff"/>
+
+  <ellipse cx="129" cy="196" rx="11" ry="17" fill="#c28653"/>
+  <ellipse cx="271" cy="196" rx="11" ry="17" fill="#c28653"/>
+  <ellipse cx="200" cy="184" rx="71" ry="85" fill="url(#skin)"/>
+
+  <path d="M127 178c-2-60 36-98 76-98 42 0 72 34 72 92-16-22-36-36-60-40-28-4-50 8-64 28-8 12-16 18-24 18z" fill="#241e1c"/>
+  <path d="M156 128c22-18 54-20 78-4-22 0-42 6-58 16-10 7-16 14-20 22z" fill="#302825"/>
+
+  <path d="M158 160c9-6 21-6 29-1M213 159c8-5 20-5 29 1" stroke="#2a1c12" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="174" cy="180" rx="10" ry="7" fill="#f8f4ee"/>
+  <ellipse cx="226" cy="180" rx="10" ry="7" fill="#f8f4ee"/>
+  <circle cx="175" cy="181" r="4" fill="#2a1c12"/>
+  <circle cx="227" cy="181" r="4" fill="#2a1c12"/>
+  <g fill="none" stroke="#0a1220" stroke-width="4">
+    <circle cx="174" cy="182" r="23"/>
+    <circle cx="226" cy="182" r="23"/>
+    <path d="M197 182h6M151 180l-18-6M249 180l18-6"/>
+  </g>
+  <path d="M200 186v20c0 5-5 8-10 6" stroke="#8a552b" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M181 222c11 9 27 9 38 0" stroke="#6b3a1c" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <path d="M162 352l38 44 38-44" fill="none" stroke="#ffb300" stroke-opacity="0.75" stroke-width="4" stroke-linejoin="round"/>
+  <rect x="180" y="402" width="40" height="26" rx="4" fill="#0b1424" stroke="#ffb300" stroke-width="2"/>
+  <rect x="188" y="409" width="24" height="13" rx="2" fill="none" stroke="#ffb300" stroke-width="1.6"/>
+  <path d="M196 409v13M196 415h16" stroke="#ffb300" stroke-width="1.6"/>
+
+  <circle cx="86" cy="432" r="17" fill="#0b1424" stroke="#00e5ff" stroke-opacity="0.65" stroke-width="2"/>
+  <path d="M86 422l2.9 7.1 7.6.6-5.8 5 1.8 7.5-6.5-4-6.5 4 1.8-7.5-5.8-5 7.6-.6z" fill="#00e5ff"/>
 </svg>

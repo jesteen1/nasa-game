@@ -10,6 +10,7 @@ import { predictMission } from "../sim/preflight";
 import { computeStats } from "../sim/vehicle";
 import type { SimEngine } from "../sim/engine";
 import { useGame } from "../store/game";
+import BrandMark from "./BrandMark";
 import FlightScreen from "./FlightScreen";
 import LaunchDock from "./LaunchDock";
 import ResultModal from "./ResultModal";
@@ -188,9 +189,7 @@ export default function   GameShell() {
     <div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-[var(--navy)] text-[var(--ink)]">
       <header className="flex min-w-0 flex-wrap items-center gap-2 border-b border-[var(--line)] bg-[rgba(5,10,20,0.85)] px-2.5 py-2 backdrop-blur sm:flex-nowrap sm:gap-4 sm:px-4">
         <div className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-sm border border-[var(--cyan)] bg-[rgba(0,229,255,0.08)] font-mono text-[11px] text-[var(--cyan)]">
-            RS
-          </div>
+          <BrandMark className="h-8 w-8 shrink-0" />
           <div className="leading-none">
             <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--ink)]">
               Rocket Simulator

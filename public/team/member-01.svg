@@ -1,22 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Team member 01 placeholder">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Illustrated portrait of Jeorse Barnard">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0b1424"/>
-      <stop offset="1" stop-color="#122a47"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12233d"/>
+      <stop offset="1" stop-color="#070c18"/>
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="35%" r="50%">
+    <radialGradient id="glow" cx="50%" cy="32%" r="60%">
       <stop offset="0" stop-color="#00e5ff" stop-opacity="0.22"/>
       <stop offset="1" stop-color="#00e5ff" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a6032"/>
+      <stop offset="1" stop-color="#74431e"/>
+    </linearGradient>
+    <linearGradient id="jacket" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d3254"/>
+      <stop offset="1" stop-color="#0c1728"/>
+    </linearGradient>
   </defs>
-  <rect width="600" height="600" fill="url(#bg)"/>
-  <rect width="600" height="600" fill="url(#glow)"/>
-  <g stroke="#00e5ff" stroke-opacity="0.18">
-    <path d="M0 150h600M0 300h600M0 450h600M150 0v600M300 0v600M450 0v600"/>
+
+  <rect width="400" height="500" fill="url(#bg)"/>
+  <rect width="400" height="500" fill="url(#glow)"/>
+  <g stroke="#00e5ff" stroke-opacity="0.07" fill="none">
+    <path d="M0 100h400M0 200h400M0 300h400M0 400h400M100 0v500M200 0v500M300 0v500"/>
   </g>
-  <circle cx="300" cy="238" r="96" fill="none" stroke="#00e5ff" stroke-opacity="0.55" stroke-width="3"/>
-  <circle cx="300" cy="214" r="54" fill="#00e5ff" fill-opacity="0.14"/>
-  <path d="M182 470c18-80 70-124 118-124s100 44 118 124" fill="#00e5ff" fill-opacity="0.08" stroke="#00e5ff" stroke-opacity="0.35" stroke-width="3"/>
-  <text x="300" y="548" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="28" fill="#8ea3bf" letter-spacing="8">TEAM 01</text>
-  <text x="300" y="578" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="14" fill="#00e5ff" fill-opacity="0.7" letter-spacing="4">PHOTO PLACEHOLDER</text>
+  <circle cx="200" cy="190" r="134" fill="none" stroke="#00e5ff" stroke-opacity="0.18" stroke-width="2"/>
+  <circle cx="200" cy="190" r="113" fill="#00e5ff" fill-opacity="0.035"/>
+
+  <path d="M176 250h48v52c0 14-11 24-24 24s-24-10-24-24z" fill="#6a3d1b"/>
+  <path d="M42 500c10-116 70-174 158-174s148 58 158 174z" fill="url(#jacket)"/>
+  <path d="M146 326l54 56-38 118h-46z" fill="#284568"/>
+  <path d="M254 326l-54 56 38 118h46z" fill="#284568"/>
+  <path d="M158 320c12 32 26 50 42 50s30-18 42-50" fill="none" stroke="#c9d8ea" stroke-width="9" stroke-linecap="round"/>
+
+  <ellipse cx="129" cy="196" rx="11" ry="17" fill="#8a552b"/>
+  <ellipse cx="271" cy="196" rx="11" ry="17" fill="#8a552b"/>
+  <ellipse cx="200" cy="184" rx="71" ry="85" fill="url(#skin)"/>
+
+  <path d="M127 180c-4-60 30-98 73-98s77 38 73 98c-9-34-33-54-73-54s-64 20-73 54z" fill="#17171e"/>
+  <g fill="#17171e">
+    <circle cx="139" cy="158" r="14"/>
+    <circle cx="163" cy="138" r="16"/>
+    <circle cx="191" cy="128" r="17"/>
+    <circle cx="220" cy="131" r="17"/>
+    <circle cx="247" cy="146" r="15"/>
+    <circle cx="263" cy="168" r="12"/>
+  </g>
+
+  <path d="M158 160c9-6 21-6 29-1M213 159c8-5 20-5 29 1" stroke="#241409" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="174" cy="180" rx="10" ry="7" fill="#f8f4ee"/>
+  <ellipse cx="226" cy="180" rx="10" ry="7" fill="#f8f4ee"/>
+  <circle cx="175" cy="181" r="4" fill="#241409"/>
+  <circle cx="227" cy="181" r="4" fill="#241409"/>
+  <g fill="none" stroke="#0a1220" stroke-width="4">
+    <rect x="149" y="166" width="47" height="34" rx="13"/>
+    <rect x="204" y="166" width="47" height="34" rx="13"/>
+    <path d="M196 180h8M149 178l-18-5M251 178l18-5"/>
+  </g>
+  <path d="M200 186v20c0 5-5 8-10 6" stroke="#5f3516" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M181 222c11 9 27 9 38 0" stroke="#4a2a16" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <circle cx="300" cy="432" r="17" fill="#0b1424" stroke="#00e5ff" stroke-opacity="0.65" stroke-width="2"/>
+  <path d="M300 422l2.9 7.1 7.6.6-5.8 5 1.8 7.5-6.5-4-6.5 4 1.8-7.5-5.8-5 7.6-.6z" fill="#00e5ff"/>
 </svg>

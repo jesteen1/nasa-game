@@ -7,43 +7,43 @@ export interface TeamMember {
 }
 
 /**
- * Replace `name`, `role`, `focus` and `image` when the real team details and
- * photos are available. Images live in `public/team/`.
+ * Crew details for the About page. Avatars live in `public/team/` and can be
+ * swapped for real photos without changing the component.
  */
 export const TEAM: TeamMember[] = [
   {
     id: "member-01",
-    name: "Team Member 01",
-    role: "Mission design & physics",
-    focus: "Tiers, parts, deterministic failure rules and mission targets.",
+    name: "Jeorse Barnard",
+    role: "Physics",
+    focus: "Flight physics, atmosphere model and the deterministic ascent integrator.",
     image: "/team/member-01.svg",
   },
   {
     id: "member-02",
-    name: "Team Member 02",
-    role: "Vehicle systems & balance",
-    focus: "TWR / Δv / CoM-CoP analysis and campaign balancing.",
+    name: "Karupusamy",
+    role: "Testing Analyst",
+    focus: "Autopilot campaign, failure-rule coverage and release checks.",
     image: "/team/member-02.svg",
   },
   {
     id: "member-03",
-    name: "Team Member 03",
-    role: "3D rendering & animation",
-    focus: "three.js scene, procedural sprites, plume, camera and launch FX.",
+    name: "Elango",
+    role: "UI Designer",
+    focus: "Mission briefing, VAB layout, flight HUD and responsive design.",
     image: "/team/member-03.svg",
   },
   {
     id: "member-04",
-    name: "Team Member 04",
-    role: "Interface, telemetry & audio",
-    focus: "VAB, flight HUD, charts, briefing page and Web Audio SFX.",
+    name: "Partha Sarathi",
+    role: "Canva Designer",
+    focus: "Slide deck, visual assets and presentation design.",
     image: "/team/member-04.svg",
   },
   {
     id: "member-05",
-    name: "Team Member 05",
-    role: "Profiles, testing & release",
-    focus: "Per-user saves, Vitest suites, builds, docs and failure guide.",
+    name: "Jesteen",
+    role: "Full Stack Developer",
+    focus: "Next.js app, state, per-user saves, audio and production build.",
     image: "/team/member-05.svg",
   },
 ];

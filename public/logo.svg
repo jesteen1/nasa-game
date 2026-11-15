@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Rocket Simulator logo">
+  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="#0b1424"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="none" stroke="#00e5ff" stroke-opacity="0.65" stroke-width="1.5"/>
+  <ellipse cx="32" cy="34" rx="24" ry="9" transform="rotate(-26 32 34)" fill="none" stroke="#00e5ff" stroke-opacity="0.38" stroke-width="1.4"/>
+  <circle cx="51" cy="23" r="2" fill="#ffb300"/>
+  <rect x="22.5" y="28" width="4" height="14" rx="2" fill="#7fcde6"/>
+  <rect x="37.5" y="28" width="4" height="14" rx="2" fill="#7fcde6"/>
+  <path d="M27 35L19.5 45l7.5-2.5z" fill="#00e5ff"/>
+  <path d="M37 35l7.5 10-7.5-2.5z" fill="#00e5ff"/>
+  <path d="M32 10c4.5 5.5 6.5 11.5 6.5 17.5V43h-13V27.5C25.5 21.5 27.5 15.5 32 10z" fill="#eaf4fb"/>
+  <circle cx="32" cy="27.5" r="3.4" fill="#0b1424" stroke="#00e5ff" stroke-width="1.4"/>
+  <circle cx="32" cy="27.5" r="1.2" fill="#00e5ff"/>
+  <path d="M28.5 43.5h7L32 52z" fill="#ffb300"/>
+  <path d="M30 43.5h4L32 48z" fill="#fff3c4"/>
+</svg>
