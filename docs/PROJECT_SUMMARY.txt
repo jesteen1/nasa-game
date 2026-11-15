@@ -1,0 +1,153 @@
+ROCKET SIMULATOR - PROJECT SUMMARY
+==================================
+Project  : Rocket Simulator
+Folder   : nasa-game
+Date     : 2026-11-15
+Version  : 0.1.0 (playable vertical slice)
+Context  : NASA Space Apps Challenge - global judging submission
+Companion: docs/PROJECT_DETAILS.txt
+           docs/NASA_DATA_SOURCES.txt
+
+ONE-LINE PITCH
+--------------
+Assemble a rocket from real-world-inspired hardware, verify its physics, and
+fly it through a seven-phase ascent - or learn from a deterministic failure.
+
+WHAT IT IS
+----------
+Rocket Simulator is a browser-based 2D rocket-engineering and mission-control
+game. Players build a launch vehicle in a Vehicle Assembly Building (VAB),
+inspect mass, thrust-to-weight ratio (TWR), delta-v, centre of mass vs centre
+of pressure and an offline "Assembly Check" prediction, then launch and manage
+the ascent from a NASA-style flight HUD.
+
+WHY IT MATTERS
+--------------
+Rocket engineering is usually taught as equations. Rocket Simulator turns the
+same relationships into decisions: every part adds mass, thrust, drag or
+stability, and every bad combination produces a specific, explainable failure.
+The result is a learning loop: build -> predict -> fly -> fail -> read the
+debrief -> change one part -> try again.
+
+WHAT PLAYERS DO
+---------------
+1. Pick a mission tier and a commander profile.
+2. Fill 10 assembly slots from 42 part entries (engines, tanks, boosters, fins,
+   interstage, upper stage, ullage, fairing, avionics).
+3. Read live telemetry analysis and the Assembly Check risk report.
+4. Launch, then fly: stage, jettison the fairing, deploy the payload, or abort.
+5. After a failure, read the plain-language debrief and three escalating clues
+   that point to the assembly slot to revisit - without giving away the answer.
+
+KEY FEATURES
+------------
+- 5 mission tiers from a sounding rocket to a Mars-transfer vehicle.
+- 42 part entries with thrust, Isp, mass, propellant, nozzle and structure data.
+- Deterministic 60 Hz ascent simulation with a 10 Hz HUD.
+- 7-phase flight state machine: count, tower, Max Q, staging, ascent,
+  insertion, deploy.
+- 12 failure modes (8 hardware rules + crash, unstable orbit, timeout, abort),
+  each with cause and fix in the in-app failure guide.
+- Assembly Check: offline 30 Hz prediction of the current build with risk
+  categories and progressive clues.
+- NASA-style comms loop (FLIGHT / CAPCOM / PROPULSION / GUIDANCE / RANGE /
+  SPACECRAFT / MCC) and telemetry downlink panel (S1 beacon, S2 telemetry,
+  payload science data).
+- Flight controls: SPACE stage, F fairing, D deploy, X abort, H hold/resume,
+  100% / 70% throttle presets and a throttle slider.
+- Procedural Web Audio sound effects, launch cinematic, camera shake and
+  2D rocket animations; no audio or image assets required.
+- Per-commander saves in localStorage, mission history and best scores.
+- Responsive VAB and flight HUD for phones, tablets and desktop.
+
+CONTENT
+-------
+Tier 1  Ares-I Sounding       suborbital sounding rocket   120 km target
+Tier 2  Falcon-X Medium       LEO medium lift              7.65 km/s deploy gate
+Tier 3  Artemis Heavy         SLS Block 1 / TLI            8.20 km/s deploy gate
+Tier 4  Saturn-V Legacy       Apollo lunar heavy lift      8.20 km/s deploy gate
+Tier 5  Starship Deep-Space   Mars transfer                8.20 km/s deploy gate
+
+Stock payloads: 150 kg, 17,500 kg, 27,000 kg, 45,000 kg and 100,000 kg.
+Mission delta-v budgets: 2.2, 9.4, 11.5, 14.5 and 15.5 km/s.
+
+NASA DATA USED
+--------------
+The simulation and vehicle library are built on NASA open technical sources:
+
+- U.S. Standard Atmosphere 1976 (NASA TM-X-74335)
+  https://ntrs.nasa.gov/citations/19770009539
+- NASA NSSDC Earth Fact Sheet (6,371 km mean radius, g0 = 9.80665 m/s2)
+  https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+- RS-25 core stage engine
+  https://www.nasa.gov/reference/space-launch-system-rs-25-core-stage-engine/
+- F-1 engine (Saturn V)
+  https://www.nasa.gov/centers/marshall/history/f1_engine_new.html
+- J-2 upper-stage engine
+  https://www.nasa.gov/wp-content/uploads/static/history/alsj/02_Saturn_Launch_Vehicles_pp8-14.pdf
+- Five-segment SLS solid rocket booster
+  https://www.nasa.gov/reference/sls-space-launch-system-solid-rocket-booster/
+- ICPS / RL10 upper stage
+  https://www.nasa.gov/reference/icps/
+- SLS Block 1 (Artemis) and the SLS Reference Guide
+  https://www.nasa.gov/reference/space-launch-system/
+  https://www.nasa.gov/wp-content/uploads/2022/03/sls-reference-guide-2022-v2-508-0.pdf
+- Saturn V / Apollo
+  https://www.nasa.gov/centers/johnson/rocketpark/saturn_v_first_stage.html
+- Black Brant / Improved Orion sounding rockets
+  https://www.nasa.gov/soundingrockets/vehicles/
+- Orion spacecraft
+  https://www.nasa.gov/humans-in-space/orion-spacecraft/
+- Kennedy Space Center (VAB setting)
+  https://www.nasa.gov/centers-and-facilities/kennedy/
+
+Full provenance, rounding notes and the non-NASA list:
+docs/NASA_DATA_SOURCES.txt
+
+NASA reference values are adapted and rounded for a deterministic arcade
+simulation; they are not flight-certified. SpaceX-inspired tiers and all
+failure/trajectory models are original and not NASA data. NASA does not
+endorse this project.
+
+TECH STACK
+----------
+- Next.js 16 (App Router), React 19, TypeScript 5
+- Tailwind CSS 4
+- High-DPI HTML Canvas 2D renderer with procedural art
+- Zustand 5 state with localStorage persistence
+- Vitest 3 for unit, integration and server-render tests
+
+QUALITY AND STATUS
+------------------
+- 93 automated tests across 27 files (physics, failure rules, campaign
+  autopilot, store, renderer, UI server-render, data completeness).
+- npm run lint clean; npm run build succeeds; all routes are static.
+- All 5 stock missions are winnable with a sensible flight policy.
+- Playable on desktop and mobile; VAB and flight HUD are responsive.
+
+ROUTES
+------
+/             mission briefing, commander profiles, how to play
+/game         VAB and flight simulator
+/failures     12 failure modes with cause and fixes
+/about        team, build story, tech stack
+/instructions redirects to /
+
+RUN IT
+------
+npm ci
+npm run dev        # http://localhost:3000
+npm test           # 93 tests
+npm run build      # production build
+npm start
+
+TEAM AND CREDITS
+----------------
+Team details are placeholders in src/game/data/about.ts and are shown on
+/about. Replace names, roles and portraits before submission.
+
+DISCLAIMER
+----------
+Rocket Simulator is an educational simulation. Values are adapted for gameplay
+and are not flight data. It is not affiliated with, or endorsed by, NASA or
+SpaceX. See docs/NASA_DATA_SOURCES.txt for sources and usage notes.

@@ -1,0 +1,509 @@
+ROCKET SIMULATOR - PROJECT DETAILS
+==================================
+Project  : Rocket Simulator
+Folder   : nasa-game
+Date     : 2026-11-15
+Version  : 0.1.0 (playable vertical slice)
+Context  : NASA Space Apps Challenge - global judging submission
+Companion: docs/PROJECT_SUMMARY.txt
+           docs/NASA_DATA_SOURCES.txt
+
+CONTENTS
+--------
+1.  Project overview
+2.  Goals and audience
+3.  Gameplay and content
+4.  Simulation model
+5.  Architecture and code map
+6.  User experience and responsive design
+7.  NASA data provenance
+8.  Non-NASA data and fidelity notes
+9.  Quality and testing
+10. Saves and commander profiles
+11. Limitations and roadmap
+12. How to run and demo script
+13. References
+14. Team, licensing and disclaimer
+
+1. PROJECT OVERVIEW
+-------------------
+Rocket Simulator is a 2D rocket-engineering and mission-control game that runs
+entirely in the browser. The player assembles a launch vehicle in a Vehicle
+Assembly Building (VAB), checks its physics, and flies a seven-phase ascent to
+a mission target. Failures are deterministic and are explained in plain
+language, so each attempt teaches one change to make.
+
+The project is a complete vertical slice:
+- 5 playable mission tiers, from a suborbital sounding rocket to a Mars
+  transfer vehicle.
+- 42 part entries across 10 assembly slots.
+- A deterministic 60 Hz flight simulation and a 10 Hz telemetry HUD.
+- 12 failure modes with an in-app guide, post-flight debrief and clues.
+- Per-commander saves, mission history and best scores.
+- 93 automated tests; lint and production build clean.
+
+The experience is deliberately arcade-sim: real relationships and NASA-derived
+reference values, but rounded and tuned so a player can learn the trade-offs in
+minutes rather than hours.
+
+2. GOALS AND AUDIENCE
+---------------------
+Primary audience: students, hobbyists and anyone curious about rocketry.
+
+Learning goals:
+- Understand thrust-to-weight ratio and why TWR < 1 burns on the pad.
+- Understand delta-v, staging and the cost of dry mass.
+- Understand Max Q, drag and throttle management.
+- Understand stability: centre of mass vs centre of pressure, fins, and
+  hammerhead fairings.
+- Understand why cryogenic insulation, ullage settling and fairing timing
+  matter.
+
+Design principles:
+- Show the consequence, not a hidden dice roll.
+- Teach with clues that name the subsystem or slot, not the exact answer.
+- Keep the simulation deterministic and inspectable.
+- Never block a risky launch: warn, explain, and let the player learn.
+
+3. GAMEPLAY AND CONTENT
+-----------------------
+3.1 Core loop
+  1. Choose a tier.
+  2. Fill the 10 assembly slots (the bay starts empty).
+  3. Read the live analysis: mass, height, TWR, per-stage delta-v,
+     centre of mass vs centre of pressure, warnings.
+  4. Run the Assembly Check (offline prediction of the current build).
+  5. Launch and fly the ascent.
+  6. Pass, or fail with a debrief plus three escalating clues.
+  7. Change one part and try again.
+
+3.2 Mission tiers
+  Tier  Name                 Reference                Payload    Delta-v budget
+  1     Ares-I Sounding      Black Brant / Orion      150 kg     2.2 km/s
+  2     Falcon-X Medium      Falcon 9 class           17,500 kg  9.4 km/s
+  3     Artemis Heavy        SLS Block 1 / Artemis    27,000 kg  11.5 km/s
+  4     Saturn-V Legacy      Saturn V / Apollo        45,000 kg  14.5 km/s
+  5     Starship Deep-Space  Mars transfer class      100,000 kg 15.5 km/s
+
+  Win conditions:
+  - Tier 1 is altitude-based: reach 120 km.
+  - Tiers 2-5 are velocity-based: reach orbital/lunar/Mars insertion and deploy
+    the payload after SECO. The deploy gate is 7.65 km/s for low Earth orbit
+    and 8.20 km/s for lunar/Mars missions.
+  - Deploying below the gate is inhibited by auto assist and fails the mission
+    as an unstable orbit if the player forces it manually.
+  - Mission timeout: 1,200 s.
+
+3.3 Vehicle Assembly Building
+  10 slots, filled from 42 part entries (including empty mounts and bays):
+    s1Engine   first-stage engine cluster
+    s1Tank     first-stage tank
+    boosters   radial solid boosters
+    fins       aerodynamic surfaces
+    interstage interstage structure
+    s2Engine   upper-stage engine
+    s2Tank     upper-stage tank
+    ullage     ullage / settling thrusters
+    fairing    payload fairing
+    avionics   flight avionics ring
+
+  Part data includes mass, height, width, sea-level and vacuum thrust, sea-level
+  and vacuum Isp, propellant type and mass, expansion ratio, gimbal range,
+  structural rating, cryogenic insulation, hammerhead flag and tier
+  availability. Compatibility is enforced softly: incompatible but present
+  hardware is allowed and produces a specific failure.
+
+  Launch is gated on completeness only: stage engine(s), tank(s), fairing and
+  avionics, plus interstage and upper-stage hardware on two-stage vehicles.
+
+3.4 Assembly Check
+  An offline 30 Hz simulation of the current build, using the same flight policy
+  as the game. It reports CLEAR, INCOMPLETE, or one of PAYLOAD, ORBIT, PAD,
+  CONTROL, STRUCTURE, RESTART and HEAT risk, with predicted vs required orbital
+  speed and a progressive clue list. Risky builds warn but never block launch.
+
+3.5 Flight phases and controls
+  Phases: COUNT -> TOWER -> MAX Q -> STAGING -> ASCENT -> INSERT -> DEPLOY,
+  followed by SUCCESS or a terminal failure.
+
+  Controls:
+    SPACE   stage / ignite upper stage
+    F       jettison fairing
+    D       deploy payload
+    X       abort
+    H       hold / resume terminal count
+    Slider  throttle 0-100%
+    Presets 100% / 70% (Max Q management)
+
+  Auto assist follows the shared autopilot policy (throttle near Max Q, stage
+  at MECO, fairing above 80 km, deploy only above insertion velocity). Warp
+  1x / 2x / 4x is available. Manual deploy remains the player's risk.
+
+3.6 Mission control presentation
+  - Telemetry: altitude, velocity, dynamic pressure Q, G-force, propellant,
+    stage, orbit-shortfall and warnings.
+  - Comms loop: FLIGHT, CAPCOM, PROPULSION, GUIDANCE, RANGE, SPACECRAFT and
+    MCC callouts driven by sim events.
+  - Downlink: S1 beacon (locked -> weak -> lost after separation), S2 telemetry
+    through SECO, payload science data after deploy, packet count and a rolling
+    hex frame.
+
+3.7 Failures
+  Twelve deterministic outcomes:
+   1. nozzle_overexpanded  Nozzle flow separation (vacuum nozzle at sea level)
+   2. cryo_boiloff        Cryogenic boil-off / ice on an uninsulated tank
+   3. pad_burn            TWR below unity, burn on the pad
+   4. pitch_divergence    Attitude loss from CoP ahead of CoM
+   5. interstage_snap     Hammerhead fairing on a weak interstage
+   6. max_q_exceeded      Structural overpressure at Max Q
+   7. ullage_cavitation   Turbopump cavitation without ullage settling
+   8. early_fairing       Aero-thermal overload when jettisoned below 80 km
+   9. crash               Trajectory below the surface
+  10. unstable_orbit      Payload released below insertion velocity
+  11. timeout             Target not reached before propellant exhaustion
+  12. abort               Manual range-safety abort
+
+  Every failure has a cause, a fix and a deep link (/failures#<id>), plus a
+  flight debrief with a plain-language why and three clues that end by naming
+  the assembly slot to revisit.
+
+4. SIMULATION MODEL
+-------------------
+Units: SI internally (m, s, kg, N); the UI converts to km, kN and kPa.
+Rendering reads snapshots only; the simulation is pure TypeScript and
+deterministic.
+
+Flight loop:
+- Fixed 60 Hz steps driven by requestAnimationFrame.
+- The engine is owned by the flight screen and remounted per run.
+- The HUD samples at about 10 Hz; the canvas reads the engine every frame.
+
+Environment:
+- U.S. Standard Atmosphere 1976 lookup from 0 to 100 km with log-linear
+  interpolation for density and pressure; an exponential continuation above
+  100 km.
+- Altitude-corrected gravity: g = g0 * (R / (R + h))^2, R = 6,371,000 m.
+- Speed of sound from temperature; Mach from local speed of sound.
+- Drag: D = 0.5 * rho * v^2 * Cd * A, with a Mach-dependent Cd curve.
+
+Propulsion:
+- Thrust is blended between the sea-level and vacuum ratings using the local
+  pressure ratio, then multiplied by the throttle setting.
+- Mass flow = thrust / (Isp * g0); propellant is consumed per step.
+- Stage mass includes engines, tanks, propellant, fairing, avionics, boosters
+  and payload; staging removes stage-1 dry mass.
+
+Attitude and guidance:
+- A per-vehicle pitch program (pitch start time, pitch rate, maximum pitch)
+  follows a gravity turn.
+- Stability uses centre of mass vs centre of pressure; no fins or a weak
+  interstage can fail.
+- The shared autopilot policy is used by the live game, the preflight
+  predictor and the campaign test.
+
+Failure engine:
+- Preflight checks (TWR, insulation, nozzle expansion, structural ratings)
+  and in-flight checks (Max Q, attitude, staging, fairing altitude).
+- A fired-set suppresses duplicate failures.
+
+5. ARCHITECTURE AND CODE MAP
+----------------------------
+app/
+  page.tsx                 "/" mission briefing, profiles and how to play
+  game/page.tsx            "/game" -> GameShell
+  failures/page.tsx        "/failures" error guide (cause + fix)
+  about/page.tsx           "/about" team, build story, tech stack
+  instructions/page.tsx    legacy URL -> redirect("/")
+  globals.css              design tokens, HUD styles and keyframes
+
+src/game/
+  types.ts                 shared types
+  data/
+    parts.ts               42 part entries
+    vehicles.ts            5 tiers, defaults, ascent profiles, targets
+    failureGuide.ts        cause/fix copy and deep-link resolver
+    comms.ts               sim event -> mission-control callout
+    hints.ts               build-aware debrief and progressive clues
+    assemblySearch.ts      VAB slot/part search model
+    about.ts               team, build story, tech stack
+  sim/
+    atmosphere.ts          U.S. Standard Atmosphere 1976 + gravity/Mach/drag
+    vehicle.ts             mass, TWR, per-stage delta-v, CoM/CoP, layout
+    engine.ts              60 Hz ascent integrator and event log
+    failures.ts            preflight and in-flight rule engine
+    preflight.ts           offline build prediction for Assembly Check
+    autopilot.ts           shared flight-assist policy and deploy gate
+    validate.ts            required-slot / vehicle-completeness gate
+    launchTimeline.ts      T-0 cinematic timing and callouts
+  render/
+    LaunchScene.tsx        VAB blueprint and flight scene (Canvas 2D)
+    sprites.ts             procedural sprite/texture helpers
+  store/game.ts            Zustand store, profiles, persistence, run state
+  audio/sfx.ts             procedural Web Audio cues and engine rumble
+  audio/cues.ts            sim event -> sound cue
+  ui/                      GameShell, VabPanel, PartIcon, TelemetryPanel,
+                           FlightHUD, FlightScreen, LaunchFX, LaunchCinematic,
+                           PadLaunch, RocketArt, CommsLog, DownlinkPanel,
+                           AssemblyCheck, FlightDebrief, FailureList,
+                           LaunchDock, ResultModal, SoundToggle, TelemetryChart
+
+Rendering:
+- High-DPI HTML Canvas 2D with a device-pixel-ratio cap.
+- VAB mode: blueprint grid, launch pedestal, flame trench, strongback tower,
+  bottom-up construction animation, attachment nodes, part cycling on click,
+  technical callouts and chrome-safe drawing zones on mobile.
+- Flight mode: full stack ascent, exhaust/plume, boosters, separation debris,
+  fairing halves, deployed payload, parallax clouds and stars, Mach cone,
+  curved Earth horizon, 0-100 km progress bar and milestone toasts.
+
+State and persistence:
+- Zustand store with a versioned localStorage save per commander.
+- No backend, no auth, no runtime data fetching.
+
+6. USER EXPERIENCE AND RESPONSIVE DESIGN
+----------------------------------------
+Routes:
+  /             briefing, commander profiles, how to play, failure overview
+  /game         VAB and flight
+  /failures     all 12 modes, filterable by deep link
+  /about        team, build story, tech stack
+  /instructions legacy redirect to /
+
+Layout rules:
+- App shell: h-dvh grid with header, main and footer rows.
+- VAB: one scroll column on phones (preview -> 10 slots -> analysis), a 2x2
+  grid on tablets and three columns on desktop.
+- The LaunchDock is a single full-width bottom row on every device, so the
+  launch button cannot be clipped.
+- The preview canvas reserves a 120 px top band (title and build helper) and a
+  72/84 px bottom band (stats bar) before drawing; the blueprint callout column
+  only renders when it fits.
+- Flight HUD uses safe-area padding for notched phones.
+
+Accessibility and performance:
+- Instrument-style monospace labels with strong contrast and colour severity.
+- Reduced-motion users get no launch FX animation.
+- No external image or audio assets; procedural art and Web Audio.
+- DPR cap and fixed-step sim keep phones responsive.
+
+7. NASA DATA PROVENANCE
+-----------------------
+The app uses NASA open technical sources in three layers. Values are adapted
+for gameplay; they are not flight-certified.
+
+7.1 Atmosphere and Earth model
+  File: src/game/sim/atmosphere.ts
+  Data: density, pressure and temperature 0-100 km; speed of sound; gravity.
+  Source: U.S. Standard Atmosphere, 1976 (NASA TM-X-74335)
+  Link: https://ntrs.nasa.gov/citations/19770009539
+  Source: NASA NSSDC Earth Fact Sheet (mean radius 6,371 km, g0 9.80665)
+  Link: https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+
+7.2 Engines
+  File: src/game/data/parts.ts
+
+  RS-25 (eng_rs25)
+    In app: 1,860 kN sea level / 2,279 kN vacuum; Isp 366 / 452 s
+    Source: NASA SLS RS-25 Core Stage Engine
+    Link: https://www.nasa.gov/reference/space-launch-system-rs-25-core-stage-engine/
+
+  F-1 (eng_f1)
+    In app: 6,770 kN sea level / 7,770 kN vacuum; Isp 263 / 304 s
+    Source: NASA Marshall - The Mighty F-1 Engine
+    Link: https://www.nasa.gov/centers/marshall/history/f1_engine_new.html
+
+  J-2 (eng_j2)
+    In app: 1,090 kN vacuum; Isp 421 s
+    Source: NASA - Saturn launch vehicle history (PDF)
+    Link: https://www.nasa.gov/wp-content/uploads/static/history/alsj/02_Saturn_Launch_Vehicles_pp8-14.pdf
+
+  ICPS / RL10 (eng_icps)
+    In app: 110 kN vacuum; Isp 465 s
+    Source: NASA SLS Interim Cryogenic Propulsion Stage (ICPS)
+    Link: https://www.nasa.gov/reference/icps/
+
+7.3 Boosters and stages
+  File: src/game/data/parts.ts
+
+  5-Segment SRB (booster_srb_5seg)
+    In app: 15,000 kN sea level / 16,000 kN vacuum; 620 t propellant
+    Source: NASA SLS Solid Rocket Booster
+    Link: https://www.nasa.gov/reference/sls-space-launch-system-solid-rocket-booster/
+
+  SLS Core LH2 Tank (tank_t3_lh2)
+    In app: 1,470 t propellant, 64.6 m x 8.4 m
+    Source: NASA Space Launch System reference
+    Link: https://www.nasa.gov/reference/space-launch-system/
+    Source: SLS Reference Guide (PDF)
+    Link: https://www.nasa.gov/wp-content/uploads/2022/03/sls-reference-guide-2022-v2-508-0.pdf
+
+7.4 Vehicles and missions
+  File: src/game/data/vehicles.ts
+
+  Tier 3 - Artemis Heavy (SLS Block 1 / Artemis)
+    https://www.nasa.gov/reference/space-launch-system/
+  Tier 4 - Saturn-V Legacy (Saturn V / Apollo)
+    https://www.nasa.gov/centers/johnson/rocketpark/saturn_v_first_stage.html
+  Tier 1 - Ares-I Sounding (Black Brant / Improved Orion)
+    https://www.nasa.gov/soundingrockets/vehicles/
+  Orion payload
+    https://www.nasa.gov/humans-in-space/orion-spacecraft/
+
+7.5 Mission context
+  VAB setting and mission-control terminology follow NASA public material.
+    https://www.nasa.gov/centers-and-facilities/kennedy/
+
+7.6 Usage notes
+  - NASA content is generally not copyrighted in the United States, but NASA's
+    insignia, logotype and seal are not used and no endorsement is implied.
+  - Cite title, URL and access date (all links checked 2026-11-15).
+  - Full audit: docs/NASA_DATA_SOURCES.txt
+  - NASA Technical Reports Server: https://ntrs.nasa.gov/
+  - NASA media guidelines:
+    https://www.nasa.gov/nasa-brand-center/images-and-media
+
+8. NON-NASA DATA AND FIDELITY NOTES
+-----------------------------------
+Not NASA data:
+- Falcon-X / Merlin and Starship / Raptor tiers: SpaceX-derived, commercial.
+- All failure rules, tolerances, ascent reference curves and scoring:
+  original simulation design.
+- 120 km target and 100 km Karman line: game design target.
+- All artwork: procedurally generated; no NASA images are embedded.
+
+Fidelity notes (stated openly):
+- NASA values are rounded or scaled for arcade balance.
+- The Artemis stack displays 119.4 m in game; the real SLS Block 1 is about
+  98 m. Stack heights are visual, not to scale.
+- The game's SLS core tank carries 1,470 t of propellant; NASA figures are
+  roughly 1,180 t.
+- The 5-segment SRB uses 620 t of propellant in game; the real booster carries
+  about 726 t.
+- The J-2 is tuned slightly above its historical vacuum thrust for balance.
+- Reference ascent curves in data/vehicles.ts are game profiles, not NASA
+  flight data.
+
+9. QUALITY AND TESTING
+----------------------
+- 93 automated tests in 27 files, run with Vitest (npm test).
+- Physics and balance: TWR/delta-v sanity, all stock builds clear, all five
+  stock missions complete with the autopilot.
+- Failure engine: every rule fires under its condition and duplicates are
+  suppressed.
+- Flight engine: determinism, staging, countdown hold, downlink transitions,
+  payload science, orbit-shortfall reporting, abort.
+- Preflight/assembly: risk classification, incomplete builds, clues.
+- Data completeness: every failure rule has a cause and a fix; the About page
+  has five members and every image path exists; comms and hints are mapped.
+- UI server-render tests: HUD, launch FX, cinematic, 2D rocket, pad launch,
+  part icons, assembly check, debrief, launch dock, failure list, result modal.
+- Store: profile create/select/delete, name normalization, legacy migration,
+  per-profile sound preference.
+- Renderer: part stack construction, separation, VAB chrome-safe layout zones.
+- npm run lint clean; npm run build succeeds; all routes are static.
+
+10. SAVES AND COMMANDER PROFILES
+--------------------------------
+- Multiple commanders, each with an independent save.
+- Keys: orbital-architect-profiles (name index),
+  orbital-architect-active (last selection) and
+  orbital-architect-save:<lowercased name> (Zustand payload).
+- Saved fields: unlocked tier, best scores, mission history, current tier,
+  build, player name and sound preference.
+- The legacy single-player key is migrated into a named profile on first load.
+- A commander can be added, selected and cleared (with confirmation) from the
+  briefing page.
+
+11. LIMITATIONS AND ROADMAP
+---------------------------
+Limitations:
+- 2D simulation; no 3D trajectory, orbital inclination or atmospheric winds.
+- Vehicle masses, heights and some engine values are game-balanced.
+- Failure rules are simplified versions of real failure modes.
+- Team names, roles and portraits are placeholders.
+- No save export/import UI yet; history is stored but not shown as a panel.
+- Audio mix and animation timing still need a real-browser QA pass.
+
+Roadmap:
+- Add save export/import and a run-history panel.
+- Optional NASA open-data launch conditions (for example launch-site weather)
+  to strengthen the NASA data story.
+- Mission-control voice callouts.
+- Additional missions and payload types.
+- Replace team placeholders before submission.
+
+12. HOW TO RUN AND DEMO SCRIPT
+------------------------------
+Requirements: Node 24+ and npm 11+.
+
+  npm ci
+  npm run dev      # http://localhost:3000
+  npm test         # 93 tests
+  npm run lint
+  npm run build
+  npm start
+
+Demo script (about 4 minutes):
+  1. Open "/" and select or add a commander.
+  2. Press "Play the game".
+  3. Show the empty VAB: pick an engine, tank, fairing and avionics for Tier 1,
+     then read the TWR and delta-v changing live.
+  4. Show the Assembly Check and open one clue.
+  5. Launch; at Max Q throttle to 70%; stage; deploy.
+  6. Deliberately choose a vacuum nozzle or an uninsulated tank on a new build,
+     launch, and show the failure guide plus the three clues.
+  7. Open "/failures" and "/about" to show the learning loop and references.
+
+13. REFERENCES
+--------------
+1.  U.S. Standard Atmosphere, 1976 (NASA TM-X-74335)
+    https://ntrs.nasa.gov/citations/19770009539
+2.  NASA NSSDC Earth Fact Sheet
+    https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+3.  NASA SLS (Space Launch System) reference
+    https://www.nasa.gov/reference/space-launch-system/
+4.  NASA SLS RS-25 Core Stage Engine
+    https://www.nasa.gov/reference/space-launch-system-rs-25-core-stage-engine/
+5.  NASA SLS Solid Rocket Booster
+    https://www.nasa.gov/reference/sls-space-launch-system-solid-rocket-booster/
+6.  NASA SLS Interim Cryogenic Propulsion Stage (ICPS)
+    https://www.nasa.gov/reference/icps/
+7.  NASA Marshall - The Mighty F-1 Engine
+    https://www.nasa.gov/centers/marshall/history/f1_engine_new.html
+8.  NASA - Saturn V First Stage
+    https://www.nasa.gov/centers/johnson/rocketpark/saturn_v_first_stage.html
+9.  NASA - Saturn launch vehicle history (PDF)
+    https://www.nasa.gov/wp-content/uploads/static/history/alsj/02_Saturn_Launch_Vehicles_pp8-14.pdf
+10. NASA - Sounding Rockets, vehicle types
+    https://www.nasa.gov/soundingrockets/vehicles/
+11. NASA - SLS Reference Guide (PDF)
+    https://www.nasa.gov/wp-content/uploads/2022/03/sls-reference-guide-2022-v2-508-0.pdf
+12. NASA - Orion spacecraft
+    https://www.nasa.gov/humans-in-space/orion-spacecraft/
+13. NASA - Kennedy Space Center
+    https://www.nasa.gov/centers-and-facilities/kennedy/
+14. NASA Technical Reports Server (NTRS)
+    https://ntrs.nasa.gov/
+15. NASA Images and Media usage guidelines
+    https://www.nasa.gov/nasa-brand-center/images-and-media
+
+All links checked 2026-11-15.
+
+14. TEAM, LICENSING AND DISCLAIMER
+----------------------------------
+Team: placeholder members are defined in src/game/data/about.ts and shown on
+/about. Replace names, roles and portraits before the global judging
+submission.
+
+Licensing:
+- Project code is original work by the team.
+- NASA content is generally not copyrighted in the United States; NASA
+  insignia, logotype and seal are not used.
+- SpaceX and other commercial names are references only; their marks belong to
+  their owners and no affiliation is implied.
+- Procedural artwork is original and generated in-repo.
+
+Disclaimer:
+Rocket Simulator is an educational simulation. NASA-derived reference values
+are adapted and rounded for gameplay; nothing here is flight data. The project
+is not affiliated with, or endorsed by, NASA or SpaceX.

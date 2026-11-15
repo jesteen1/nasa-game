@@ -1,0 +1,107 @@
+ROCKET SIMULATOR - NASA DATA SOURCES
+====================================
+Project : Rocket Simulator (nasa-game)
+Compiled: 2026-11-15
+Purpose : NASA-derived data used in the app, with source links, for the
+          NASA Space Apps Challenge global judging submission.
+
+NOTE
+----
+NASA reference values are adapted/rounded for a deterministic arcade
+simulation. They are not flight-certified. NASA does not endorse this project.
+
+1. ATMOSPHERE AND EARTH MODEL
+------------------------------
+File: src/game/sim/atmosphere.ts
+Used for: density, pressure and temperature from 0 to 100 km; gravity;
+          speed of sound; dynamic pressure.
+Source : U.S. Standard Atmosphere, 1976 (NASA TM-X-74335)
+Link   : https://ntrs.nasa.gov/citations/19770009539
+
+Source : NASA NSSDC Earth Fact Sheet (mean radius 6371 km, g0 9.80665 m/s2)
+Link   : https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+
+2. NASA ENGINES
+----------------
+File: src/game/data/parts.ts
+
+RS-25 (part id: eng_rs25)
+  In app: 1,860 kN sea level / 2,279 kN vacuum; Isp 366 / 452 s
+  Source: NASA SLS RS-25 Core Stage Engine
+  Link  : https://www.nasa.gov/reference/space-launch-system-rs-25-core-stage-engine/
+
+F-1 (part id: eng_f1)
+  In app: 6,770 kN sea level / 7,770 kN vacuum; Isp 263 / 304 s
+  Source: NASA Marshall - The Mighty F-1 Engine
+  Link  : https://www.nasa.gov/centers/marshall/history/f1_engine_new.html
+
+J-2 (part id: eng_j2)
+  In app: 1,090 kN vacuum; Isp 421 s
+  Source: NASA - Saturn launch vehicle history (PDF)
+  Link  : https://www.nasa.gov/wp-content/uploads/static/history/alsj/02_Saturn_Launch_Vehicles_pp8-14.pdf
+
+ICPS / RL10 (part id: eng_icps)
+  In app: 110 kN vacuum; Isp 465 s
+  Source: NASA SLS Interim Cryogenic Propulsion Stage (ICPS)
+  Link  : https://www.nasa.gov/reference/icps/
+
+3. NASA BOOSTERS AND STAGES
+----------------------------
+File: src/game/data/parts.ts
+
+5-Segment SRB (part id: booster_srb_5seg)
+  In app: 15,000 kN sea level / 16,000 kN vacuum; 620 t propellant
+  Source: NASA SLS Solid Rocket Booster
+  Link  : https://www.nasa.gov/reference/sls-space-launch-system-solid-rocket-booster/
+
+SLS Core LH2 Tank (part id: tank_t3_lh2)
+  In app: 1,470 t propellant, 64.6 m x 8.4 m
+  Source: NASA Space Launch System reference
+  Link  : https://www.nasa.gov/reference/space-launch-system/
+  Source: SLS Reference Guide (PDF, full specifications)
+  Link  : https://www.nasa.gov/wp-content/uploads/2022/03/sls-reference-guide-2022-v2-508-0.pdf
+
+4. NASA VEHICLES AND MISSIONS
+------------------------------
+File: src/game/data/vehicles.ts
+
+Tier 3 - Artemis Heavy (SLS Block 1)
+  Source: NASA Space Launch System
+  Link  : https://www.nasa.gov/reference/space-launch-system/
+
+Tier 4 - Saturn-V Legacy (Saturn V / Apollo)
+  Source: NASA - Saturn V First Stage
+  Link  : https://www.nasa.gov/centers/johnson/rocketpark/saturn_v_first_stage.html
+
+Tier 1 - Ares-I Sounding (Black Brant / Improved Orion)
+  Source: NASA Sounding Rockets - vehicle types
+  Link  : https://www.nasa.gov/soundingrockets/vehicles/
+
+Orion payload
+  Source: NASA Orion spacecraft
+  Link  : https://www.nasa.gov/humans-in-space/orion-spacecraft/
+
+5. MISSION CONTEXT AND SETTING
+-------------------------------
+VAB setting and mission-control terminology follow NASA public material.
+  Source: NASA Kennedy Space Center
+  Link  : https://www.nasa.gov/centers-and-facilities/kennedy/
+
+6. NOT NASA DATA (TRANSPARENCY)
+--------------------------------
+- Falcon-X / Merlin and Starship / Raptor tiers: SpaceX-derived, commercial.
+- All failure rules, tolerances, ascent reference curves and scoring:
+  original simulation design.
+- 120 km target and 100 km Karman line: game design target, not a NASA dataset.
+- All artwork: procedurally generated in-repo; no NASA images embedded.
+
+7. GENERAL NASA RESOURCES AND USAGE
+------------------------------------
+NASA Technical Reports Server (NTRS) - https://ntrs.nasa.gov/
+NASA Images and Media usage guidelines
+  https://www.nasa.gov/nasa-brand-center/images-and-media
+
+NASA content is generally not copyrighted in the U.S., but NASA's insignia,
+logotype and seal are not used, and no NASA endorsement is implied.
+
+All links checked 2026-11-15. Cite title + URL + access date.
