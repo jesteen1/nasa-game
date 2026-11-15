@@ -26,7 +26,6 @@
   <circle cx="200" cy="190" r="134" fill="none" stroke="#00e5ff" stroke-opacity="0.18" stroke-width="2"/>
   <circle cx="200" cy="190" r="113" fill="#00e5ff" fill-opacity="0.035"/>
 
-  <path d="M118 180c0-66 36-104 82-104s82 38 82 104v132c0 22-18 36-40 30-18-5-28-20-42-20s-24 15-42 20c-22 6-40-8-40-30z" fill="#1c1820"/>
   <path d="M176 250h48v52c0 14-11 24-24 24s-24-10-24-24z" fill="#b98652"/>
   <path d="M42 500c10-116 70-174 158-174s148 58 158 174z" fill="url(#hoodie)"/>
   <path d="M120 330c12-32 44-50 80-50s68 18 80 50" fill="#101724"/>
@@ -35,6 +34,11 @@
   <path d="M186 382v36M214 382v36" stroke="#7fd8ea" stroke-width="3" stroke-linecap="round"/>
   <circle cx="186" cy="422" r="3.5" fill="#7fd8ea"/>
   <circle cx="214" cy="422" r="3.5" fill="#7fd8ea"/>
+  <path d="M126 348c16-26 40-40 74-40s58 14 74 40" fill="none" stroke="#0a0f19" stroke-width="10" stroke-linecap="round"/>
+  <rect x="114" y="338" width="20" height="36" rx="9" fill="#0a0f19"/>
+  <rect x="266" y="338" width="20" height="36" rx="9" fill="#0a0f19"/>
+  <circle cx="124" cy="356" r="4" fill="#00e5ff" fill-opacity="0.7"/>
+  <circle cx="276" cy="356" r="4" fill="#00e5ff" fill-opacity="0.7"/>
 
   <ellipse cx="129" cy="196" rx="11" ry="17" fill="#d8a76e"/>
   <ellipse cx="271" cy="196" rx="11" ry="17" fill="#d8a76e"/>

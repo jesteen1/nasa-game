@@ -40,7 +40,7 @@ The project is a complete vertical slice:
 - A deterministic 60 Hz flight simulation and a 10 Hz telemetry HUD.
 - 12 failure modes with an in-app guide, post-flight debrief and clues.
 - Per-commander saves, mission history and best scores.
-- 94 automated tests; lint and production build clean.
+- 96 automated tests; lint and production build clean.
 
 The experience is deliberately arcade-sim: real relationships and NASA-derived
 reference values, but rounded and tuned so a player can learn the trade-offs in
@@ -385,7 +385,7 @@ Fidelity notes (stated openly):
 
 9. QUALITY AND TESTING
 ----------------------
-- 94 automated tests in 27 files, run with Vitest (npm test).
+- 96 automated tests in 28 files, run with Vitest (npm test).
 - Physics and balance: TWR/delta-v sanity, all stock builds clear, all five
   stock missions complete with the autopilot.
 - Failure engine: every rule fires under its condition and duplicates are
@@ -438,7 +438,7 @@ Requirements: Node 24+ and npm 11+.
 
   npm ci
   npm run dev      # http://localhost:3000
-  npm test         # 94 tests
+  npm test         # 96 tests
   npm run lint
   npm run build
   npm start
@@ -492,7 +492,7 @@ All links checked 2026-11-15.
 14. TEAM, LICENSING AND DISCLAIMER
 ----------------------------------
 Team: the five crew members are defined in src/game/data/about.ts and shown on
-/about with original illustrated human avatars in public/team/:
+/about with illustrated young-male college-student avatars in public/team/:
 
   Jeorse Barnard  - Physics
   Karupusamy      - Testing Analyst

@@ -38,7 +38,6 @@
 
   <path d="M126 176c-2-58 34-96 76-96 44 0 74 34 74 96-10-26-26-44-50-50-28-7-50 2-66 20-10 11-20 20-34 30z" fill="#1f1917"/>
   <path d="M148 136c24-22 58-26 84-8-22 0-42 6-58 18-12 9-20 20-24 32z" fill="#2b2421"/>
-  <path d="M132 200c2 38 28 68 68 68s66-30 68-68c-6 26-18 44-32 52-10 6-22 8-36 8s-26-2-36-8c-14-8-26-26-32-52z" fill="#2a211d" opacity="0.55"/>
 
   <path d="M158 160c9-6 21-6 29-1M213 159c8-5 20-5 29 1" stroke="#2a1a10" stroke-width="5" fill="none" stroke-linecap="round"/>
   <ellipse cx="174" cy="180" rx="10" ry="7" fill="#f8f4ee"/>
@@ -46,7 +45,6 @@
   <circle cx="175" cy="181" r="4" fill="#2a1a10"/>
   <circle cx="227" cy="181" r="4" fill="#2a1a10"/>
   <path d="M200 186v20c0 5-5 8-10 6" stroke="#6b3a18" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M181 212c7-4 12-4 17 0 5-4 10-4 17 0" stroke="#2a211d" stroke-width="5" fill="none" stroke-linecap="round"/>
   <path d="M183 224c10 8 24 8 34 0" stroke="#4a2a16" stroke-width="4" fill="none" stroke-linecap="round"/>
 
   <path d="M268 188l18-12" stroke="#ffb300" stroke-width="5" stroke-linecap="round"/>

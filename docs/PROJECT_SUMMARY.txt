@@ -119,7 +119,7 @@ TECH STACK
 
 QUALITY AND STATUS
 ------------------
-- 94 automated tests across 27 files (physics, failure rules, campaign
+- 96 automated tests across 28 files (physics, failure rules, campaign
   autopilot, store, renderer, UI server-render, data completeness).
 - npm run lint clean; npm run build succeeds; all routes are static.
 - All 5 stock missions are winnable with a sensible flight policy.
@@ -137,7 +137,7 @@ RUN IT
 ------
 npm ci
 npm run dev        # http://localhost:3000
-npm test           # 94 tests
+npm test           # 96 tests
 npm run build      # production build
 npm start
 
@@ -150,7 +150,7 @@ Partha Sarathi  - Canva Designer
 Jesteen         - Full Stack Developer
 
 Crew details live in src/game/data/about.ts and are shown on /about with
-original illustrated human avatars in public/team/. Photos can replace the
+illustrated young-male college-student avatars in public/team/. Photos can replace the
 avatars without code changes.
 
 DISCLAIMER

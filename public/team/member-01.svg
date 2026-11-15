@@ -12,7 +12,7 @@
       <stop offset="0" stop-color="#9a6032"/>
       <stop offset="1" stop-color="#74431e"/>
     </linearGradient>
-    <linearGradient id="jacket" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="hoodie" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#1d3254"/>
       <stop offset="1" stop-color="#0c1728"/>
     </linearGradient>
@@ -27,10 +27,15 @@
   <circle cx="200" cy="190" r="113" fill="#00e5ff" fill-opacity="0.035"/>
 
   <path d="M176 250h48v52c0 14-11 24-24 24s-24-10-24-24z" fill="#6a3d1b"/>
-  <path d="M42 500c10-116 70-174 158-174s148 58 158 174z" fill="url(#jacket)"/>
-  <path d="M146 326l54 56-38 118h-46z" fill="#284568"/>
-  <path d="M254 326l-54 56 38 118h46z" fill="#284568"/>
-  <path d="M158 320c12 32 26 50 42 50s30-18 42-50" fill="none" stroke="#c9d8ea" stroke-width="9" stroke-linecap="round"/>
+  <path d="M42 500c10-116 70-174 158-174s148 58 158 174z" fill="url(#hoodie)"/>
+  <path d="M124 334c14-30 44-46 76-46s62 16 76 46" fill="#16263f"/>
+  <path d="M164 324c9 28 22 44 36 44s27-16 36-44" fill="none" stroke="#9fb6cc" stroke-width="7" stroke-linecap="round"/>
+  <path d="M186 360v40M214 360v40" stroke="#9fb6cc" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="186" cy="404" r="3.5" fill="#9fb6cc"/>
+  <circle cx="214" cy="404" r="3.5" fill="#9fb6cc"/>
+  <path d="M152 446c15 10 32 15 48 15s33-5 48-15" fill="none" stroke="#16263f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M236 326l-64 174h-26l64-174z" fill="#0a1220" fill-opacity="0.5"/>
+  <rect x="196" y="404" width="20" height="12" rx="3" fill="#ffb300" fill-opacity="0.85"/>
 
   <ellipse cx="129" cy="196" rx="11" ry="17" fill="#8a552b"/>
   <ellipse cx="271" cy="196" rx="11" ry="17" fill="#8a552b"/>
