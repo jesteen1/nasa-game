@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import { getVehicle, VEHICLES } from "../data/vehicles";
 import LaunchScene from "../render/LaunchScene";
+import { predictMission } from "../sim/preflight";
 import { computeStats } from "../sim/vehicle";
 import type { SimEngine } from "../sim/engine";
 import { useGame } from "../store/game";
@@ -73,6 +74,7 @@ function VabScreen({ previewRef }: { previewRef: MutableRefObject<SimEngine | nu
   const build = useGame((s) => s.build);
   const vehicle = getVehicle(tier);
   const stats = useMemo(() => computeStats(vehicle, build), [vehicle, build]);
+  const prediction = useMemo(() => predictMission(vehicle, build), [vehicle, build]);
   const [showBrief, setShowBrief] = useState(false);
 
   return (
@@ -134,11 +136,11 @@ function VabScreen({ previewRef }: { previewRef: MutableRefObject<SimEngine | nu
       </section>
 
       <div className="min-h-0 lg:overflow-hidden">
-        <VabPanel vehicle={vehicle} />
+        <VabPanel vehicle={vehicle} prediction={prediction} />
       </div>
 
       <div className="min-h-0 lg:overflow-y-auto lg:pr-0.5">
-        <TelemetryPanel vehicle={vehicle} stats={stats} />
+        <TelemetryPanel vehicle={vehicle} stats={stats} build={build} prediction={prediction} />
       </div>
     </main>
   );

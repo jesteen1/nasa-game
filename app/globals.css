@@ -435,9 +435,26 @@ body {
   }
 }
 
+@keyframes downlink-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.downlink-fill {
+  width: 100%;
+  animation: downlink-fill 2.4s ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .status-dot {
     animation: none;
+  }
+  .downlink-fill {
+    animation: none !important;
   }
   .fx-ring,
   .fx-streak,

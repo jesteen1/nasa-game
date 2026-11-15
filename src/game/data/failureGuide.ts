@@ -155,3 +155,18 @@ export const FAILURE_GUIDE: FailureGuideEntry[] = Object.entries(FAILURE_DEFS).m
     };
   },
 );
+
+/**
+ * Resolves a `/failures#<id>` hash to its guide entry. Returns null for an
+ * empty or unknown hash, which means "show the full list".
+ */
+export function findFailureGuide(
+  hash: string,
+  entries: FailureGuideEntry[] = FAILURE_GUIDE,
+): FailureGuideEntry | null {
+  const id = hash.replace(/^#/, "").trim().toLocaleLowerCase();
+  if (!id) return null;
+  return (
+    entries.find((entry) => entry.id.toLocaleLowerCase() === id) ?? null
+  );
+}

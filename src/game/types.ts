@@ -123,6 +123,24 @@ export interface TelemetrySample {
 
 export type FlightStatus = "countdown" | "flying" | "success" | "failure";
 
+export type DownlinkStatus = "standby" | "locked" | "weak" | "lost";
+
+/** Live telemetry downlink to mission control (MCC). */
+export interface DownlinkState {
+  /** Stage-1 beacon: drops to a weak signal after separation, then lost. */
+  s1: DownlinkStatus;
+  /** Upper-stage telemetry: dwells through SECO after separation. */
+  s2: DownlinkStatus;
+  /** Deployed payload science downlink. */
+  payload: DownlinkStatus;
+  /** Count of telemetry packets received by MCC. */
+  packets: number;
+  /** Science data recovered from the payload, 0–100. */
+  sciencePct: number;
+  /** Latest raw packet frame shown in the downlink stream. */
+  frameHex: string;
+}
+
 export interface SimSnapshot {
   t: number;
   h: number;
@@ -149,6 +167,9 @@ export interface SimSnapshot {
   maxQ: number;
   maxG: number;
   deltaVSpent: number;
+  /** True while the operator has paused the terminal count. */
+  hold: boolean;
+  downlink: DownlinkState;
   warnings: Warning[];
   events: SimEvent[];
   failure: FailureEvent | null;

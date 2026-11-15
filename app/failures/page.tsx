@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAILURE_GUIDE } from "@/src/game/data/failureGuide";
+import FailureList from "@/src/game/ui/FailureList";
 
 export const metadata: Metadata = {
   title: "Failure Guide — Rocket Simulator",
@@ -76,67 +77,7 @@ export default function FailuresPage() {
           </div>
         </section>
 
-        <div className="grid gap-3 lg:grid-cols-2">
-          {FAILURE_GUIDE.map((entry, index) => (
-            <article
-              key={entry.id}
-              id={entry.id}
-              className="panel scroll-mt-24 p-4 sm:p-5"
-              aria-labelledby={`${entry.id}-title`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="grid h-6 w-6 place-items-center rounded-sm border border-[rgba(255,42,85,0.45)] bg-[rgba(255,42,85,0.08)] font-mono text-[9px] text-[var(--red)]">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="rounded-sm border border-[var(--line)] px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--red)]">
-                    {entry.code}
-                  </span>
-                </div>
-                <span className="text-right font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
-                  {entry.phase}
-                </span>
-              </div>
-
-              <h2
-                id={`${entry.id}-title`}
-                className="mt-2 text-base font-semibold tracking-tight text-white"
-              >
-                {entry.title}
-              </h2>
-              <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--amber)]">
-                {entry.short}
-              </p>
-
-              <div className="mt-3 border-t border-[var(--line)] pt-2.5">
-                <h3 className="font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--muted)]">
-                  Why it happens
-                </h3>
-                <p className="mt-1 text-[12px] leading-relaxed text-[#c9d8ea]">{entry.why}</p>
-              </div>
-
-              <div className="mt-3">
-                <h3 className="font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--cyan)]">
-                  What to change
-                </h3>
-                <ul className="mt-1.5 space-y-1.5">
-                  {entry.fixes.map((fix) => (
-                    <li key={fix} className="flex gap-2 text-[11px] leading-snug text-[#c9d8ea]">
-                      <span aria-hidden className="mt-[2px] text-[var(--cyan)]">
-                        ▸
-                      </span>
-                      <span>{fix}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <p className="mt-3 border-t border-[var(--line)] pt-2 font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">
-                Telemetry · {entry.telemetry}
-              </p>
-            </article>
-          ))}
-        </div>
+        <FailureList />
 
         <section className="panel flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>

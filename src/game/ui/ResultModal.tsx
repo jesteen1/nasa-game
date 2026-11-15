@@ -3,7 +3,35 @@
 import Link from "next/link";
 import { getVehicle, MAX_TIER } from "../data/vehicles";
 import { useGame } from "../store/game";
+import FlightDebrief from "./FlightDebrief";
 import { fmtInt, fmtTime } from "./format";
+
+export interface ResultAction {
+  label: string;
+  kind: "advance" | "refly" | "vab";
+}
+
+/**
+ * Only a passed mission may advance. A failure always offers a re-fly plus a
+ * return to the assembly bay — never a "next mission" shortcut.
+ */
+export function resultActions(success: boolean, tier: number, unlocked: number) {
+  if (!success) {
+    return {
+      primary: { label: "Play again", kind: "refly" as const },
+      secondary: { label: "Back to VAB", kind: "vab" as const },
+    };
+  }
+
+  const nextTier = tier + 1;
+  const canAdvance = nextTier <= MAX_TIER && nextTier <= unlocked;
+  return {
+    primary: canAdvance
+      ? { label: `Next mission — T${nextTier}`, kind: "advance" as const }
+      : { label: "Back to VAB", kind: "vab" as const },
+    secondary: { label: "Re-fly this build", kind: "refly" as const },
+  };
+}
 
 export default function ResultModal() {
   const result = useGame((s) => s.result);
@@ -11,13 +39,26 @@ export default function ResultModal() {
   const launch = useGame((s) => s.launch);
   const backToVab = useGame((s) => s.backToVab);
   const setTier = useGame((s) => s.setTier);
+  const build = useGame((s) => s.build);
 
   if (!result) return null;
 
+  const actions = resultActions(result.success, result.tier, unlocked);
   const success = result.success;
   const nextTier = result.tier + 1;
   const canAdvance = success && nextTier <= MAX_TIER && nextTier <= unlocked;
   const nextVehicle = canAdvance ? getVehicle(nextTier) : null;
+
+  const runAction = (kind: ResultAction["kind"]) => {
+    if (kind === "advance") {
+      setTier(nextTier);
+      backToVab();
+    } else if (kind === "refly") {
+      launch();
+    } else {
+      backToVab();
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(3,7,15,0.82)] p-4 backdrop-blur-sm">
@@ -77,6 +118,11 @@ export default function ResultModal() {
                     <br />
                     CAUSE: {result.failure.cause}
                   </p>
+                  <FlightDebrief
+                    failure={result.failure}
+                    vehicle={getVehicle(result.tier)}
+                    build={build}
+                  />
                   <Link
                     href={`/failures#${result.failure.id}`}
                     className="inline-flex items-center gap-1.5 rounded-sm border border-[rgba(0,229,255,0.35)] bg-[rgba(0,229,255,0.05)] px-2 py-1 font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--cyan)] transition hover:bg-[rgba(0,229,255,0.12)]"
@@ -114,22 +160,17 @@ export default function ResultModal() {
         <footer className="flex flex-col gap-2 border-t border-[var(--line)] px-5 py-4 sm:flex-row">
           <button
             type="button"
-            onClick={() => {
-              if (success && canAdvance) {
-                setTier(nextTier);
-              }
-              backToVab();
-            }}
+            onClick={() => runAction(actions.primary.kind)}
             className="flex-1 rounded-md bg-[var(--cyan)] px-3 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#001014] transition hover:bg-white"
           >
-            {success && canAdvance ? `Next mission — T${nextTier}` : `Next mission — T${result.tier}`}
+            {actions.primary.label}
           </button>
           <button
             type="button"
-            onClick={launch}
+            onClick={() => runAction(actions.secondary.kind)}
             className="flex-1 rounded-md border border-[var(--line)] px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--ink)] transition hover:border-[var(--cyan)] hover:text-[var(--cyan)]"
           >
-            Re-fly this build
+            {actions.secondary.label}
           </button>
         </footer>
       </div>

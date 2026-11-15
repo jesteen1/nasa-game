@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cuesForEvent } from "../audio/cues";
 import { sfx } from "../audio/sfx";
 import LaunchScene from "../render/LaunchScene";
+import { applyAutoDecisions } from "../sim/autopilot";
 import { SimEngine } from "../sim/engine";
 import { computeStats } from "../sim/vehicle";
 import { useGame } from "../store/game";
@@ -72,22 +73,7 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
       let guard = 0;
       while (accumulator >= FIXED_STEP && guard < 80) {
         engine.step(FIXED_STEP);
-        if (autoAssistRef.current) {
-          const s = engine.getSnapshot();
-          if (s.status === "flying") {
-            if (s.q > 38 && s.throttle > 0.7) engine.setThrottle(0.7);
-            else if (s.q < 32 && s.throttle < 1) engine.setThrottle(1);
-            if (s.stage1Burnout && !s.separated && vehicle.stages === 2) {
-              engine.action("stage");
-            }
-            if (s.fairingAttached && s.h > 82_000 && vehicle.stages === 2) {
-              engine.action("fairing");
-            }
-            if (s.seco && !s.deployed && vehicle.stages === 2) {
-              engine.action("deploy");
-            }
-          }
-        }
+        if (autoAssistRef.current) applyAutoDecisions(engine, vehicle);
         accumulator -= FIXED_STEP;
         guard += 1;
       }
@@ -145,7 +131,8 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
         ) {
           finished = true;
           sfx.setEngine(0);
-          const delay = current.status === "success" ? 1200 : 2400;
+          // Let the science downlink animation play out before the modal.
+          const delay = current.status === "success" ? 3000 : 2400;
           finishTimer = window.setTimeout(() => finish(engine.getResult()), delay);
         }
       }
@@ -186,6 +173,14 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
     setSnap(engine.getSnapshot());
   }, []);
 
+  const onHold = useCallback(() => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    if (engine.getSnapshot().hold) engine.resumeCountdown();
+    else engine.hold();
+    setSnap(engine.getSnapshot());
+  }, []);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.repeat) return;
@@ -198,13 +193,15 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
         onAction("fairing");
       } else if (event.key === "d" || event.key === "D") {
         onAction("deploy");
+      } else if (event.key === "h" || event.key === "H") {
+        onHold();
       } else if (event.key === "x" || event.key === "X") {
         onAction("abort");
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onAction]);
+  }, [onAction, onHold]);
 
   return (
     <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -251,6 +248,7 @@ export default function FlightScreen({ vehicle }: { vehicle: Vehicle }) {
           initialProp2Kg={stats.stage2.propellantKg}
           onThrottle={onThrottle}
           onAction={onAction}
+          onHold={onHold}
         />
       ) : null}
     </div>

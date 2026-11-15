@@ -2,12 +2,16 @@
 
 import { useEffect, useRef } from "react";
 import { sfx } from "../audio/sfx";
-import type { Vehicle, VehicleStats } from "../types";
+import type { PreflightPrediction } from "../sim/preflight";
+import type { BuildConfig, Vehicle, VehicleStats } from "../types";
+import AssemblyCheck from "./AssemblyCheck";
 import { fmtInt, fmtKm, fmtMass, fmtSpeed } from "./format";
 
 interface Props {
   vehicle: Vehicle;
   stats: VehicleStats;
+  build: BuildConfig;
+  prediction: PreflightPrediction;
 }
 
 function Stat({
@@ -53,7 +57,7 @@ function twrTone(twr: number): "good" | "warn" | "bad" {
   return "good";
 }
 
-export default function TelemetryPanel({ vehicle, stats }: Props) {
+export default function TelemetryPanel({ vehicle, stats, build, prediction }: Props) {
   const margin = stats.deltaV - vehicle.target.deltaV;
   const warnings = stats.warnings;
   const seenWarnings = useRef<Set<string>>(new Set());
@@ -74,6 +78,8 @@ export default function TelemetryPanel({ vehicle, stats }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
+      <AssemblyCheck prediction={prediction} vehicle={vehicle} build={build} stats={stats} />
+
       <section className="panel p-3.5">
         <header className="mb-3 flex items-center justify-between">
           <h2 className="panel-title">Vehicle Analysis</h2>

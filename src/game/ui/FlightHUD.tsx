@@ -1,6 +1,8 @@
 "use client";
 
-import type { SimSnapshot, TelemetrySample, Vehicle } from "../types";
+import type { DownlinkStatus, SimSnapshot, TelemetrySample, Vehicle } from "../types";
+import CommsLog from "./CommsLog";
+import DownlinkPanel from "./DownlinkPanel";
 import TelemetryChart from "./TelemetryChart";
 import { fmtInt, fmtKm, fmtMass, fmtTime } from "./format";
 
@@ -14,9 +16,17 @@ interface Props {
   initialProp2Kg: number;
   onThrottle: (value: number) => void;
   onAction: (kind: ActionKind) => void;
+  onHold: () => void;
 }
 
 const PHASES = ["COUNT", "TOWER", "MAX Q", "STAGING", "ASCENT", "INSERT", "DEPLOY", "DONE"];
+
+const LINK_DOT: Record<DownlinkStatus, string> = {
+  standby: "bg-[rgba(142,163,191,0.45)]",
+  locked: "bg-[var(--cyan)] shadow-[0_0_5px_var(--cyan)]",
+  weak: "bg-[var(--amber)]",
+  lost: "bg-[var(--red)]",
+};
 
 function metricTone(value: number, warn: number, bad: number): string {
   if (value >= bad) return "text-[var(--red)]";
@@ -54,6 +64,7 @@ export default function FlightHUD({
   initialProp2Kg,
   onThrottle,
   onAction,
+  onHold,
 }: Props) {
   const stageReady =
     vehicle.stages === 2 && snap.stage1Burnout && !snap.separated;
@@ -61,7 +72,6 @@ export default function FlightHUD({
   const prop1Pct = Math.max(0, Math.min(100, (snap.propellant1Kg / Math.max(1, initialProp1Kg)) * 100));
   const prop2Pct = Math.max(0, Math.min(100, (snap.propellant2Kg / Math.max(1, initialProp2Kg)) * 100));
   const warnings = snap.warnings;
-  const recentEvents = snap.events.slice(-7).reverse();
 
   return (
     <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-2.5 sm:p-4">
@@ -126,6 +136,19 @@ export default function FlightHUD({
             <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">
               Max Q {snap.maxQ.toFixed(1)} kPa · Max G {snap.maxG.toFixed(2)}
             </div>
+            <div className="mt-1 flex items-center justify-end gap-2 font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)]">
+              <span>MCC link</span>
+              {[
+                { label: "S1", status: snap.downlink.s1 },
+                { label: "S2", status: snap.downlink.s2 },
+                { label: "PL", status: snap.downlink.payload },
+              ].map(({ label, status }) => (
+                <span key={label} className="flex items-center gap-1">
+                  <span className={`h-1.5 w-1.5 rounded-full ${LINK_DOT[status]}`} />
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
           <div className="hud-panel pointer-events-auto min-w-[180px] px-2.5 py-2">
             <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -175,6 +198,8 @@ export default function FlightHUD({
       <div className="flex items-end justify-between gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
 
         <div className="pointer-events-auto hidden w-[min(430px,42vw)] flex-col gap-1.5 lg:flex">
+          <DownlinkPanel snap={snap} />
+
           <div className="hud-panel px-3 py-2">
             <div className="mb-1 flex items-center justify-between">
               <span className="font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -194,28 +219,15 @@ export default function FlightHUD({
           </div>
 
           <div className="hud-panel max-h-32 overflow-y-auto px-3 py-2">
-            <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--muted)]">
-              Mission events
+            <div className="mb-1 flex items-center justify-between">
+              <span className="font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--muted)]">
+                Comms loop
+              </span>
+              <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--cyan)]">
+                MCC
+              </span>
             </div>
-            <ul className="flex flex-col gap-0.5">
-              {recentEvents.map((event, index) => (
-                <li
-                  key={`${event.t}-${event.message}-${index}`}
-                  className={`font-mono text-[9px] leading-snug ${
-                    event.tone === "bad"
-                      ? "text-[var(--red)]"
-                      : event.tone === "warn"
-                        ? "text-[var(--amber)]"
-                        : event.tone === "good"
-                          ? "text-[var(--cyan)]"
-                          : "text-[var(--muted)]"
-                  }`}
-                >
-                  <span className="mr-1.5 opacity-70">{fmtTime(event.t)}</span>
-                  {event.message}
-                </li>
-              ))}
-            </ul>
+            <CommsLog events={snap.events} max={6} />
           </div>
         </div>
 
@@ -236,7 +248,33 @@ export default function FlightHUD({
           ) : null}
 
           <div className="hud-panel px-3 py-2.5">
-            <div className="mb-2 flex items-center gap-2">
+            {snap.status === "countdown" ? (
+              <div className="mb-2 flex items-center justify-between gap-2 rounded-sm border border-[var(--line)] bg-[rgba(8,16,30,0.55)] px-2 py-1.5">
+                <span
+                  className={`font-mono text-[9px] uppercase tracking-[0.14em] ${
+                    snap.hold ? "text-[var(--amber)]" : "text-[var(--muted)]"
+                  }`}
+                >
+                  {snap.hold ? "Count hold — clock paused" : "Terminal count running"}
+                </span>
+                <button
+                  type="button"
+                  onClick={onHold}
+                  className={`rounded-sm border px-2 py-1 font-mono text-[9px] uppercase tracking-[0.12em] transition ${
+                    snap.hold
+                      ? "border-[rgba(0,229,255,0.55)] bg-[rgba(0,229,255,0.1)] text-[var(--cyan)]"
+                      : "border-[var(--line)] text-[var(--ink)] hover:border-[var(--amber)] hover:text-[var(--amber)]"
+                  }`}
+                >
+                  {snap.hold ? "Resume" : "Hold"}
+                  <span className="ml-1.5 rounded-sm border border-[rgba(142,163,191,0.28)] px-1 py-px text-[7px] opacity-75">
+                    H
+                  </span>
+                </button>
+              </div>
+            ) : null}
+
+            <div className="mb-1 flex items-center gap-2">
               <span className="font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--muted)]">Throttle</span>
               <input
                 type="range"
@@ -251,6 +289,23 @@ export default function FlightHUD({
               <span className="w-9 text-right font-mono text-[11px] text-[var(--cyan)]">
                 {Math.round(snap.throttle * 100)}%
               </span>
+            </div>
+
+            <div className="mb-2 flex items-center gap-1">
+              <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                Preset
+              </span>
+              {[1, 0.7].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => onThrottle(value)}
+                  disabled={snap.status === "success" || snap.status === "failure"}
+                  className="rounded-sm border border-[var(--line)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--muted)] transition hover:border-[var(--cyan)] hover:text-[var(--cyan)] disabled:opacity-30"
+                >
+                  {value * 100}%
+                </button>
+              ))}
             </div>
 
             <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">

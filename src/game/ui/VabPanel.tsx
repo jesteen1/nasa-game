@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getPart, partsForSlot, SLOT_CATEGORY, SLOT_LABEL } from "../data/parts";
 import { sfx } from "../audio/sfx";
 import { useGame } from "../store/game";
+import { predictMission, type PreflightPrediction } from "../sim/preflight";
 import { missingSlots } from "../sim/validate";
 import type { Part, SlotId, Vehicle } from "../types";
 import { fmtInt, fmtMass } from "./format";
@@ -116,7 +117,13 @@ function PartOption({
   );
 }
 
-export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
+export default function VabPanel({
+  vehicle,
+  prediction,
+}: {
+  vehicle: Vehicle;
+  prediction?: PreflightPrediction;
+}) {
   const build = useGame((s) => s.build);
   const setSlot = useGame((s) => s.setSlot);
   const resetBuild = useGame((s) => s.resetBuild);
@@ -125,6 +132,11 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
   const [confirming, setConfirming] = useState(false);
   const missing = missingSlots(vehicle, build);
   const complete = missing.length === 0;
+  const check = useMemo(
+    () => prediction ?? predictMission(vehicle, build),
+    [prediction, vehicle, build],
+  );
+  const risky = check.risk !== "none" && check.risk !== "incomplete";
 
   const openOptions = openSlot
     ? partsForSlot(SLOT_CATEGORY[openSlot], vehicle.tier)
@@ -252,7 +264,9 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
             disabled={!complete}
             title={
               complete
-                ? "Commit this vehicle to flight"
+                ? risky
+                  ? "Assembly check flagged a risk — review the clue before launch"
+                  : "Commit this vehicle to flight"
                 : `Install hardware in: ${missing.map((slot) => SLOT_LABEL[slot]).join(", ")}`
             }
             onClick={() => {
@@ -275,7 +289,9 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
                 ? "cursor-not-allowed border border-[rgba(255,179,0,0.35)] bg-[rgba(255,179,0,0.08)] text-[var(--amber)]"
                 : confirming
                   ? "bg-[var(--amber)] text-[#1a1200] shadow-[0_0_24px_rgba(255,179,0,0.35)]"
-                  : "bg-[var(--cyan)] text-[#001014] shadow-[0_0_24px_rgba(0,229,255,0.28)] hover:bg-white"
+                  : risky
+                    ? "border border-[var(--amber)] bg-[rgba(255,179,0,0.14)] text-[var(--amber)] shadow-[0_0_18px_rgba(255,179,0,0.2)] hover:bg-[rgba(255,179,0,0.22)]"
+                    : "bg-[var(--cyan)] text-[#001014] shadow-[0_0_24px_rgba(0,229,255,0.28)] hover:bg-white"
             }`}
           >
             {!complete ? "Vehicle incomplete" : confirming ? "Confirm launch" : "Initiate launch"}
@@ -290,7 +306,9 @@ export default function VabPanel({ vehicle }: { vehicle: Vehicle }) {
             ? `Missing hardware: ${missing.map((slot) => SLOT_LABEL[slot]).join(" · ")}. Launch is locked until every required slot is installed.`
             : confirming
               ? "Warning: configuration will be committed to the flight vehicle."
-              : "Launch commits the current build. Warnings do not block launch."}
+              : risky
+                ? "Assembly check flagged a risk — read the clue, then launch when ready."
+                : "Launch commits the current build. Warnings do not block launch."}
         </p>
       </footer>
     </div>

@@ -1,6 +1,8 @@
 import { getPart } from "../data/parts";
 import type {
   BuildConfig,
+  DownlinkState,
+  DownlinkStatus,
   FailureDef,
   FailureEvent,
   FlightStatus,
@@ -57,6 +59,8 @@ export class SimEngine {
   private seco = false;
   private fairingAttached = true;
   private deployed = false;
+  private s1Lost = false;
+  private held = false;
   private status: FlightStatus = "countdown";
   private failure: FailureEvent | null = null;
   private warnings: Warning[] = [];
@@ -97,6 +101,20 @@ export class SimEngine {
   setThrottle(value: number) {
     this.throttle = Math.max(0.3, Math.min(1, value));
     this.snap = this.buildSnapshot();
+  }
+
+  /** Holds the terminal count (NASA-style countdown hold). */
+  hold() {
+    if (this.status !== "countdown") return;
+    this.held = true;
+    this.refresh();
+  }
+
+  /** Resumes a held terminal count. */
+  resumeCountdown() {
+    if (this.status !== "countdown") return;
+    this.held = false;
+    this.refresh();
   }
 
   getSnapshot(): SimSnapshot {
@@ -184,6 +202,7 @@ export class SimEngine {
       const needed = insertionVelocity(this.vehicle);
       if (Math.hypot(this.vx, this.vy) >= needed) {
         this.pushEvent("deploy", "PAYLOAD DEPLOY CONFIRMED", "good");
+        this.pushEvent("downlink-science", "SCIENCE DOWNLINK ACQUIRED — DATA FLOWING", "good");
         this.succeed();
       } else {
         this.trigger(
@@ -197,6 +216,11 @@ export class SimEngine {
 
   step(dt: number) {
     if (this.status === "success" || this.status === "failure") return;
+
+    if (this.status === "countdown" && this.held) {
+      this.refresh();
+      return;
+    }
 
     this.t += dt;
 
@@ -258,9 +282,18 @@ export class SimEngine {
     if (this.stage === 2 && this.stage2Ignited && this.prop2 <= 0.5 && !this.seco) {
       this.seco = true;
       this.prop2 = 0;
-      this.pushEvent("seco", "SECO — SECOND ENGINE CUTOFF", "good");
-      if (this.h > 100 * KM) {
+      const insertion = insertionVelocity(this.vehicle);
+      const secoSpeed = Math.hypot(this.vx, this.vy);
+      if (secoSpeed >= insertion) {
+        this.pushEvent("seco", "SECO — SECOND ENGINE CUTOFF", "good");
         this.pushEvent("orbit", "ORBITAL INSERTION VELOCITY REACHED", "good");
+      } else {
+        this.pushEvent("seco", "SECO — SECOND ENGINE CUTOFF", "warn");
+        this.pushEvent(
+          "orbit-short",
+          `ORBIT SHORTFALL — ${Math.round(secoSpeed)} / ${Math.round(insertion)} M/S`,
+          "bad",
+        );
       }
     }
 
@@ -273,6 +306,12 @@ export class SimEngine {
     ) {
       this.stage2Ignited = true;
       this.pushEvent("ses-1", "SES-1 — UPPER STAGE IGNITION", "good");
+    }
+
+    // Stage 1 falls below the horizon a few seconds after separation.
+    if (this.separated && !this.s1Lost && this.t - this.separatedAt >= 8) {
+      this.s1Lost = true;
+      this.pushEvent("s1-lost", "S1 SIGNAL LOST — BEACON BELOW HORIZON", "info");
     }
 
     // Ascent pitch program
@@ -363,6 +402,7 @@ export class SimEngine {
     this.stage = 2;
     this.massKg = Math.max(1, this.massKg - this.stats.stage1.dryKg);
     this.pushEvent("separation", "STAGE SEPARATION CONFIRMED", "good");
+    this.pushEvent("downlink-s2", "DOWNLINK ACQUIRED — S2 TELEMETRY", "info");
 
     const liquidUpper =
       this.e2.propellant !== "SOLID" && this.e2.propellant !== "NONE";
@@ -474,14 +514,14 @@ export class SimEngine {
     }
     if (this.seco && !this.deployed && this.vehicle.stages === 2) {
       const needed = insertionVelocity(this.vehicle);
+      const short = speed < needed;
       list.push({
         id: "deploy-ready",
-        label: "DEPLOY PAYLOAD",
-        detail:
-          speed >= needed
-            ? `Orbital velocity ${(speed / 1000).toFixed(2)} km/s. Deploy when ready.`
-            : `Need ${(needed / 1000).toFixed(2)} km/s; currently ${(speed / 1000).toFixed(2)} km/s.`,
-        severity: speed >= needed ? "warn" : "critical",
+        label: short ? "ORBIT SHORTFALL — DEPLOY INHIBITED" : "DEPLOY PAYLOAD",
+        detail: short
+          ? `Need ${(needed / 1000).toFixed(2)} km/s; currently ${(speed / 1000).toFixed(2)} km/s. Auto-deploy is holding. Press D to deploy anyway (payload risk) or X to abort.`
+          : `Orbital velocity ${(speed / 1000).toFixed(2)} km/s. Deploy when ready.`,
+        severity: short ? "critical" : "warn",
       });
     }
     if (this.prop2 > 0 && this.prop2 < this.stats.stage2.propellantKg * 0.15) {
@@ -544,10 +584,46 @@ export class SimEngine {
       maxQ: this.maxQ,
       maxG: this.maxG,
       deltaVSpent: this.deltaVSpent,
+      hold: this.held,
+      downlink: this.buildDownlink(),
       warnings: this.warnings,
       events: [...this.events],
       failure: this.failure,
     };
+  }
+
+  private buildDownlink(): DownlinkState {
+    const failed = this.status === "failure";
+    const countdown = this.status === "countdown";
+
+    let s1: DownlinkStatus = "standby";
+    if (!countdown) {
+      if (!this.separated) s1 = failed ? "lost" : "locked";
+      else if (this.s1Lost || failed) s1 = "lost";
+      else s1 = this.t - this.separatedAt >= 8 ? "lost" : "weak";
+    }
+
+    const s2: DownlinkStatus =
+      this.vehicle.stages === 2 && this.separated
+        ? failed
+          ? "lost"
+          : "locked"
+        : "standby";
+
+    const payload: DownlinkStatus = this.deployed
+      ? failed
+        ? "lost"
+        : "locked"
+      : "standby";
+
+    const packets = countdown ? 0 : Math.floor(Math.max(0, this.t) * 12);
+    const sciencePct = this.deployed ? (failed ? 25 : 100) : 0;
+    const seed = (packets * 2654435761) >>> 0;
+    const a = seed.toString(16).toUpperCase().padStart(8, "0");
+    const b = ((seed ^ 0x5aa5c33c) >>> 0).toString(16).toUpperCase().padStart(8, "0");
+    const frameHex = `A5 5A ${a.slice(0, 2)} ${a.slice(2, 4)} ${a.slice(4, 6)} ${a.slice(6, 8)} ${b.slice(0, 2)} ${b.slice(2, 4)} ${b.slice(4, 6)} ${b.slice(6, 8)}`;
+
+    return { s1, s2, payload, packets, sciencePct, frameHex };
   }
 
   private phaseInfo(): { phase: number; label: string } {

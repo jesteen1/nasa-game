@@ -22,6 +22,7 @@ describe("FlightHUD", () => {
         initialProp2Kg={stats.stage2.propellantKg}
         onThrottle={() => {}}
         onAction={() => {}}
+        onHold={() => {}}
       />,
     );
     expect(countdown).toContain("Mission clock");
@@ -38,6 +39,7 @@ describe("FlightHUD", () => {
         initialProp2Kg={stats.stage2.propellantKg}
         onThrottle={() => {}}
         onAction={() => {}}
+        onHold={() => {}}
       />,
     );
     expect(flying).toContain("Throttle");
